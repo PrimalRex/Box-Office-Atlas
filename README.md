@@ -2,13 +2,15 @@
 > Explore global box office film performances
 
 ```
-░█▀▀█ ── ░█▀▀▀█ ── ─█▀▀█ 
+░█▀▀█ ── ░█▀▀▀█ ── ░█▀▀█ 
 ░█▀▀▄ ▀▀ ░█──░█ ▀▀ ░█▄▄█ 
 ░█▄▄█ ── ░█▄▄▄█ ── ░█─░█
 ```
 ----
 
-**Box-Office-Atlas** aka "BOA" is a web-app that visualizes the global economic performance of box office films, providing users with an interactive way to explore their favourite films' success.
+**Box-Office-Atlas** aka "BOA" is a web-app that visualizes the global economic performance of box office films, providing users with an interactive way to explore their favourite films' success. 
+
+**FILL OTHER INFORMATION ABOUT ARCHITECTURE HERE**
 
 ----
 
