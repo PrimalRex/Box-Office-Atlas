@@ -22,6 +22,14 @@ __/\\\\\\\\\\\\\___        _______/\\\\\______        _____/\\\\\\\\\____
 
 ----
 
+### Directory Navigation
+
+| Folder 				| Description 							|
+|-----------------------|---------------------------------------|
+| `art`| Non-important images & gifs |
+| `db` |All SQL files to Create & Test|
+| `src`| All EJS/JS Files to run the site|
+
 # TEMPLATE USAGE
  - Clone Repo
  - NPM init -y in the root directory to install all relevant modules
