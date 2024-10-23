@@ -1,19 +1,8 @@
 // This is the scraper for the Box Office Mojo by IMDbPRO website
 // https://www.boxofficemojo.com
 
+const movie = require('../jsmodules/movie');
 const cheerio = require('cheerio');
-
-// Some Enums and Constants to reference
-
-// Some performance charts are different on the website so we need to identify and handle them differently
-const performanceChartCategories = Object.freeze({
-    // Cat 1 refers to movies that have only 1 round of box office performance and therefore a simple DOM to read from
-    Cat1: 1,
-    // Cat 2 refers to movies that have multiple rounds of box office performance and therefore a more complex DOM to read from
-    // they share similar table structures but need their own extraction process
-    // NOTE: Cat 2 movies take ALL-TIME gross data and not their 1st round of performance
-    Cat2: 2
-});
 
 // "Domestic" refers to gross box-office revenue from North America (U.S., Canada, and Puerto Rico)" - IMDb
 const domesticCountryDefault = "U.S., Canada, and Puerto Rico";
@@ -65,7 +54,8 @@ const BOM_API = {
         }
     },
 
-    getBoxOfficeBreakdownForTitle: async function (ttID) {
+    // Creates and returns a movie Object that contains all the extracted data from its BOM page
+    createBoxOfficeBreakdownForTitle: async function (ttID) {
 
         try {
             const boxOfficeUrl = `https://www.boxofficemojo.com/title/${ttID}/`;
@@ -78,7 +68,7 @@ const BOM_API = {
             const $ = cheerio.load(html);
 
             // Create a movieData object to store all the extracted data
-            var movieData = {};
+            var movieData = new movie(ttID);
 
             // Extract the movie title (we don't really need to do this but since we've requested it we might as well use it)
             const title = $('.a-size-extra-large').first().text().trim();
@@ -110,6 +100,7 @@ const BOM_API = {
                 if(label.includes('Genres')) {
                     // Split the genres into an array by checking spaces between each of the words
                     value = value.split(/\s{1,}/);
+
                 }
             
                 // Filter out unwanted labels like 'Domestic Opening' and 'IMDbPro'
@@ -134,9 +125,9 @@ const BOM_API = {
 
             // Check if the first performance element is Domestic or By Release so we can assign a categoric value
             if (firstPerformanceElement == "Domestic") {
-                performanceChartCategory = performanceChartCategories.Cat1;
+                performanceChartCategory = movie.performanceChartCategories.Cat1;
             } else if (firstPerformanceElement == "By Release") {
-                performanceChartCategory = performanceChartCategories.Cat2;
+                performanceChartCategory = movie.performanceChartCategories.Cat2;
             }
 
             // Gross Breakdown
@@ -148,7 +139,7 @@ const BOM_API = {
                 const grossTitle = $('.a-bordered.a-horizontal-stripes.a-size-base-plus').eq(i).prev().text().trim();
 
                 //console.log(grossTitle);
-                if (performanceChartCategory == performanceChartCategories.Cat2) {
+                if (performanceChartCategory == movie.performanceChartCategories.Cat2) {
 
                     var sanitizedGrossData = [];
                 
@@ -175,7 +166,7 @@ const BOM_API = {
                 };
                 
                 // If the title is recent or not quite cult-classic they will only have 1 round of box office performance
-                if (performanceChartCategory == performanceChartCategories.Cat1) {
+                if (performanceChartCategory == movie.performanceChartCategories.Cat1) {
 
                     var sanitizedGrossData = [];
                 
@@ -212,15 +203,16 @@ const BOM_API = {
             
 
             // Assign extracted data to the movieData object
-            movieData.title = title || 'Title not found';
-            movieData.summary = summary || 'Summary not found';
-            // Going to assign any missing data as -1 for now - might be better to assign as null in the future
-            movieData.domesticGross = domesticGross || "-1";
-            movieData.internationalGross = internationalGross || "-1";
-            movieData.worldwideGross = worldwideGross || "-1";
-            movieData.globalGrossDataByCountry = globalGrossDataByCountry;
-            movieData.movieDetails = sanitizedDetails;
-            movieData.globalGrossDataCategory = performanceChartCategory;
+            movieData.setMovieTitle(title);
+            movieData.setMovieSummary(summary);
+            movieData.setMovieFinancials({ worldwideGross, domesticGross, internationalGross, globalGrossDataByCountry });
+            movieData.setMovieDetails({ 
+                distributor: sanitizedDetails['Domestic Distributor'] || 'NULL',
+                earliestReleaseDate: sanitizedDetails['Earliest Release Date'] || 'NULL',
+                genre: sanitizedDetails['Genres'] || [], // Assumes value is already an array
+                mpaa: sanitizedDetails['MPAA'] || 'NULL',
+                runningTime: sanitizedDetails['Running Time'] || 'NULL'
+            });
 
             return movieData;
 
@@ -230,6 +222,7 @@ const BOM_API = {
         }
     },
 
+    // Returns a URL to the highest resolution poster image for the title
     getTitlePosterImageSrc: async function(ttID) {
     
         try {
