@@ -1,11 +1,11 @@
-// This is the scraper for the Box Office Mojo website
+// This is the scraper for the Box Office Mojo by IMDbPRO website
 // https://www.boxofficemojo.com
 
 const cheerio = require('cheerio');
 
 // Some Enums and Constants to reference
 
-// Some performance charts are differentr on the website so we need to identify and handle them differently
+// Some performance charts are different on the website so we need to identify and handle them differently
 const performanceChartCategories = Object.freeze({
     // Cat 1 refers to movies that have only 1 round of box office performance and therefore a simple DOM to read from
     Cat1: 1,
@@ -18,7 +18,7 @@ const performanceChartCategories = Object.freeze({
 // "Domestic" refers to gross box-office revenue from North America (U.S., Canada, and Puerto Rico)" - IMDb
 const domesticCountryDefault = "U.S., Canada, and Puerto Rico";
 
-// The scraper also sanitizes all data recieved so this gives the app a focused and tailored API
+// The scraper also sanitizes all data recieved so this is a focused and tailored API
 const BOM_API = {
 
     // Scrapes the search engine from the website for the titles we want to search for
@@ -65,7 +65,7 @@ const BOM_API = {
         }
     },
 
-    getBoxOfficeBreakdown: async function (ttID) {
+    getBoxOfficeBreakdownForTitle: async function (ttID) {
 
         try {
             const boxOfficeUrl = `https://www.boxofficemojo.com/title/${ttID}/`;
@@ -226,6 +226,32 @@ const BOM_API = {
 
         } catch (err) {
             console.error('Error fetching box office breakdown: ', err);
+            throw err;
+        }
+    },
+
+    getTitlePosterImageSrc: async function(ttID) {
+    
+        try {
+            // Go to the IMDB Pro page as it has the highest resolution images that are referenced from the Box Office Mojo page
+            const boxOfficeImageUrl = `https://pro.imdb.com/title/${ttID}/`;
+    
+            // Fetch and wait
+            const response = await fetch(boxOfficeImageUrl);
+            const html = await response.text();
+    
+            // Cherrio to parse the HTML
+            const $ = cheerio.load(html);
+
+            // Select the image element from the DOM
+            var imageElement = $('.primary_image_highlight');
+
+            // Get the 2x image source URL (optionally we can extract the 1x image source as well)
+            var imageSrc = imageElement.attr('data-src-2x').trim(); 
+            return imageSrc;
+
+        } catch (err) {
+            console.error('Error fetching poster image: ', err);
             throw err;
         }
     }
