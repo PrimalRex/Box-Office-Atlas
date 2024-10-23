@@ -11,14 +11,17 @@ module.exports = function (app, boaData) {
       // Test out the BOM API
       const test1 = await BOM_API.searchForTitles("dune part two");
       console.log(test1);
-      console.log(await BOM_API.createBoxOfficeBreakdownForTitle(test1[0].movieId));
-      console.log(await BOM_API.getTitlePosterImageSrc(test1[0].movieId));
+      var dune2 = await BOM_API.createBoxOfficeBreakdownForTitle(test1[0].movieId);
+      console.log(dune2);
+      //console.log(dune2.getLowestGrossingCountry());
+      //console.log(dune2.getHighestGrossingCountry());
+      //console.log(await BOM_API.getTitlePosterImageSrc(test1[0].movieId));
 
-      const test2= await BOM_API.searchForTitles("jurassic");
-      console.log(test2);
-      console.log(await BOM_API.createBoxOfficeBreakdownForTitle(test2[0].movieId));
-      console.log(await BOM_API.createBoxOfficeBreakdownForTitle(test2[1].movieId));
-      console.log(await BOM_API.getTitlePosterImageSrc(test2[1].movieId));
+      //const test2= await BOM_API.searchForTitles("jurassic");
+      //console.log(test2);
+      //console.log(await BOM_API.createBoxOfficeBreakdownForTitle(test2[0].movieId));
+      //console.log(await BOM_API.createBoxOfficeBreakdownForTitle(test2[1].movieId));
+      //console.log(await BOM_API.getTitlePosterImageSrc(test2[1].movieId));
 
       res.render("landingpage.ejs", boaData);
     });

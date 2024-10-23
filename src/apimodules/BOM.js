@@ -170,7 +170,7 @@ const BOM_API = {
             
                     if (grossTitle == "Domestic") {
                         // Use the static country name for domestic
-                        sanitizedGrossData.push({ country: domesticCountryDefault, grossData: [domesticGross] });
+                        sanitizedGrossData.push({ country: domesticCountryDefault, countryGross: domesticGross });
                     } else {
                         const gross = $('.a-bordered.a-horizontal-stripes.a-size-base-plus').eq(i);
                         var grossData = [];
@@ -204,7 +204,7 @@ const BOM_API = {
                 worldwideGross,
                 domesticGross,
                 internationalGross,
-                globalGrossDataByCountry
+                grossByCountry: globalGrossDataByCountry
             });
             movieData.setMovieDetails({ 
                 distributor: sanitizedDetails['Domestic Distributor'],

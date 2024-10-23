@@ -81,6 +81,66 @@ class Movie {
     getMovieFinancials() {
         return this.movieFinancials;
     }
+
+    // Manipulative functions
+
+    getCountryGrossesAsIntegers() {
+        var grosses = [];
+        this.getMovieFinancials().grossByCountry.forEach((country) => {
+            var value = country.countryGross;
+            value = value.replace(/[^0-9]/g, '');
+            grosses.push(value);
+        });
+        return grosses;
+    }
+
+    // Although the list is already ordered and thus we can determine the lowest from the last index, there might be a case
+    // where the domestic is lower than the international gross ? Not entirely sure yet but this works in both cases
+    getLowestGrossingCountry() {
+        var lowestgross = Number.MAX_SAFE_INTEGER;
+        var lowestgrosscountry;
+    
+        const countryGrosses = this.getCountryGrossesAsIntegers();
+    
+        // Iterate through the stored gross values
+        for (var i = 0; i < countryGrosses.length; i++) {
+
+            // Convert gross values to integers for comparison
+            const currentGross = parseInt(countryGrosses[i], 10); // Ensure it's treated as an integer
+    
+            if (currentGross < lowestgross) {
+                lowestgross = currentGross; 
+                lowestgrosscountry = this.getMovieFinancials().grossByCountry[i].country; 
+                //console.log(lowestgross); 
+            }
+        }
+    
+        return highestGrossCountry; 
+    }
+
+    getHighestGrossingCountry() {
+        var highestGross = 0;
+        var highestGrossCountry;
+    
+        const countryGrosses = this.getCountryGrossesAsIntegers();
+    
+        // Iterate through the stored gross values
+        for (var i = 0; i < countryGrosses.length; i++) {
+            
+            // Convert gross values to integers for comparison
+            const currentGross = parseInt(countryGrosses[i], 10); // Ensure it's treated as an integer
+    
+            if (currentGross > highestGross) {
+                highestGross = currentGross; 
+                highestGrossCountry = this.getMovieFinancials().grossByCountry[i].country; 
+                //console.log(highestGross); 
+            }
+        }
+    
+        return highestGrossCountry; 
+    }
+    
+    
 }
 
 module.exports = Movie;
