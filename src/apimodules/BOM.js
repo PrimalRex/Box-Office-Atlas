@@ -205,13 +205,18 @@ const BOM_API = {
             // Assign extracted data to the movieData object
             movieData.setMovieTitle(title);
             movieData.setMovieSummary(summary);
-            movieData.setMovieFinancials({ worldwideGross, domesticGross, internationalGross, globalGrossDataByCountry });
+            movieData.setMovieFinancials({ 
+                worldwideGross,
+                domesticGross,
+                internationalGross,
+                globalGrossDataByCountry
+            });
             movieData.setMovieDetails({ 
-                distributor: sanitizedDetails['Domestic Distributor'] || 'NULL',
-                earliestReleaseDate: sanitizedDetails['Earliest Release Date'] || 'NULL',
-                genre: sanitizedDetails['Genres'] || [], // Assumes value is already an array
-                mpaa: sanitizedDetails['MPAA'] || 'NULL',
-                runningTime: sanitizedDetails['Running Time'] || 'NULL'
+                distributor: sanitizedDetails['Domestic Distributor'],
+                earliestReleaseDate: sanitizedDetails['Earliest Release Date'],
+                genre: sanitizedDetails['Genres'],
+                mpaa: sanitizedDetails['MPAA'],
+                runningTime: sanitizedDetails['Running Time'] 
             });
 
             return movieData;
