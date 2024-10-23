@@ -137,55 +137,51 @@ const BOM_API = {
             for (let i = 0; i < grossBoxes; i++) {
                 // Grab the title first, if its domestic we want to process it differently
                 const grossTitle = $('.a-bordered.a-horizontal-stripes.a-size-base-plus').eq(i).prev().text().trim();
-
+            
                 //console.log(grossTitle);
                 if (performanceChartCategory == movie.performanceChartCategories.Cat2) {
-
                     var sanitizedGrossData = [];
-                
+            
                     // Select all rows 
                     const rows = $('.a-bordered.a-horizontal-stripes.a-size-base-plus tr');
-                
+            
                     // Iterate over each row
-                    for (let i = 0; i < rows.length; i++) {
-                        const cells = $(rows[i]).find('td');
-
+                    for (let j = 0; j < rows.length; j++) {
+                        const cells = $(rows[j]).find('td');
+            
                         if (cells.length > 2) {
                             var country = $(cells[0]).text().trim();
                             country = country === "Domestic" ? domesticCountryDefault : country;
                             const countryGross = $(cells[2]).text().trim();
-                
+            
                             // Check if country is valid and we'll only push if there is a gross value attached to it
                             if (country && countryGross[0] === '$') {
                                 sanitizedGrossData.push({ country, countryGross });
                             }
                         }
                     }
-
+            
                     globalGrossDataByCountry = sanitizedGrossData;
-                };
-                
+                }
+            
                 // If the title is recent or not quite cult-classic they will only have 1 round of box office performance
                 if (performanceChartCategory == movie.performanceChartCategories.Cat1) {
-
                     var sanitizedGrossData = [];
-                
+            
                     if (grossTitle == "Domestic") {
                         // Use the static country name for domestic
                         sanitizedGrossData.push({ country: domesticCountryDefault, grossData: [domesticGross] });
                     } else {
-
                         const gross = $('.a-bordered.a-horizontal-stripes.a-size-base-plus').eq(i);
                         var grossData = [];
-                
+            
                         // Iterate over the gross data and extract the text
-                        for (let j = 0; j < gross.find('td').length; j++) { 
+                        for (let j = 0; j < gross.find('td').length; j++) {
                             grossData.push($(gross.find('td')[j]).text());
                         }
-                
+            
                         // Go through the list of data and take only the gross and name of the country
-                        for (let k = 0; k < grossData.length; k++) { 
-                           
+                        for (let k = 0; k < grossData.length; k++) {
                             // We only want to extract the country name which occurs every 4th element
                             if (k % 4 == 0) {
                                 const country = grossData[k].trim();
@@ -194,12 +190,11 @@ const BOM_API = {
                                 sanitizedGrossData.push({ country, countryGross });
                             }
                         }
-                    };
-                
-                    globalGrossDataByCountry = (globalGrossDataByCountry || []).concat(sanitizedGrossData);
+                    }
+            
+                    globalGrossDataByCountry = globalGrossDataByCountry.concat(sanitizedGrossData);
                 }
-                
-            };
+            };            
             
 
             // Assign extracted data to the movieData object
