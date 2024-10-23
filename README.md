@@ -1,11 +1,11 @@
-# Box-Office-Atlas :: JS/EJS/SQL Project for DAW 2024-2025
+# Box Office Atlas : : JS/EJS/SQL Project for DAW 2024-2025
 > Explore global box office film performances
 
 <img src="art/BOABannerTransparent.png" width=100% />
 
 ----
 
-**Box-Office-Atlas** aka "BOA" is a web-app that visualizes the global economic performance of box office films, providing users with an interactive way to explore their favourite films' success. 
+**Box Office Atlas** aka **"BOA"** is a web-app that visualizes the global economic performance of box office films, providing users with an interactive way to explore their favourite films' success. 
 
 **FILL OTHER INFORMATION ABOUT ARCHITECTURE HERE**
 
