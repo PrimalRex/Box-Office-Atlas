@@ -1,11 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Box Office Atlas</title>
+<meta charset="utf-8">
+<title>Box Office Atlas</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="/css/mapbox-gl.css" rel="stylesheet">
+<script src="/js/mapbox-gl.js"></script>
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+.mapboxgl-ctrl-bottom-right, .mapboxgl-ctrl-bottom-left {
+    display: none !important;
+}
+</style>
 </head>
 <body>
-    <h1>Welcome to Box Office Atlas</h1>
+<div id="map"></div>
+<script>
+    // This token has no privileges, but it is required to use the Mapbox API
+    mapboxgl.accessToken = 'pk.eyJ1IjoicHJpbWFscmV4IiwiYSI6ImNtMm1kaWh2NTBtc3Eya3FzczA1YnJvYjAifQ.xDLRlv9kJfKu2tGnwUs99A';
+    const map = new mapboxgl.Map({
+        container: 'map',
+        // Cached style for faster loading
+        style: '/BOAStyle.json',
+        //style: 'mapbox://styles/mapbox/streets-v11',
+        testMode: true,
+        center: [133.775136, -25.274398], // starting position [lng, lat]
+        zoom: 4,
+        minZoom: 2,
+        maxZoom: 4
+    });
+
+</script>
+
 </body>
 </html>

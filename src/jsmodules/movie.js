@@ -39,6 +39,10 @@ class Movie {
     constructor(ttID) {
         this.ttID = ttID;
     }
+
+    getTtID() {
+        return this.ttID;
+    }
     
     setMovieTitle(title) {
         this.title = title;
@@ -128,7 +132,7 @@ class Movie {
         for (var i = 0; i < countryGrosses.length; i++) {
             
             // Convert gross values to integers for comparison
-            const currentGross = parseInt(countryGrosses[i],10);
+            const currentGross = parseInt(countryGrosses[i], 10);
     
             if (currentGross > highestGross) {
                 highestGross = currentGross; 

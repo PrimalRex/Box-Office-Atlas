@@ -3,6 +3,10 @@ var express = require("express");
 var ejs = require("ejs");
 var mysql = require("mysql");
 var session = require("express-session");
+// Hide away all API keys in here
+require('dotenv').config();
+
+const MAPBOX_API_KEY = process.env.MAPBOX_API_KEY;
 
 // Create the express application object
 const app = express();
