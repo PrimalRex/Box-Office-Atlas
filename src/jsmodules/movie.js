@@ -97,25 +97,25 @@ class Movie {
     // Although the list is already ordered and thus we can determine the lowest from the last index, there might be a case
     // where the domestic is lower than the international gross ? Not entirely sure yet but this works in both cases
     getLowestGrossingCountry() {
-        var lowestgross = Number.MAX_SAFE_INTEGER;
-        var lowestgrosscountry;
+        var lowestGross = Number.MAX_SAFE_INTEGER;
+        var lowestGrossCountry;
     
         const countryGrosses = this.getCountryGrossesAsIntegers();
     
         // Iterate through the stored gross values
         for (var i = 0; i < countryGrosses.length; i++) {
 
-            // Convert gross values to integers for comparison
-            const currentGross = parseInt(countryGrosses[i], 10); // Ensure it's treated as an integer
+            // Convert gross values to integers for comparison (base 10 conversion)
+            const currentGross = parseInt(countryGrosses[i], 10);
     
-            if (currentGross < lowestgross) {
-                lowestgross = currentGross; 
-                lowestgrosscountry = this.getMovieFinancials().grossByCountry[i].country; 
-                //console.log(lowestgross); 
+            if (currentGross < lowestGross) {
+                lowestGross = currentGross; 
+                lowestGrossCountry = this.getMovieFinancials().grossByCountry[i].country; 
+                //console.log(lowestGross); 
             }
         }
     
-        return highestGrossCountry; 
+        return lowestGrossCountry; 
     }
 
     getHighestGrossingCountry() {
@@ -128,7 +128,7 @@ class Movie {
         for (var i = 0; i < countryGrosses.length; i++) {
             
             // Convert gross values to integers for comparison
-            const currentGross = parseInt(countryGrosses[i], 10); // Ensure it's treated as an integer
+            const currentGross = parseInt(countryGrosses[i],10);
     
             if (currentGross > highestGross) {
                 highestGross = currentGross; 

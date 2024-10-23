@@ -13,8 +13,8 @@ module.exports = function (app, boaData) {
       console.log(test1);
       var dune2 = await BOM_API.createBoxOfficeBreakdownForTitle(test1[0].movieId);
       console.log(dune2);
-      //console.log(dune2.getLowestGrossingCountry());
-      //console.log(dune2.getHighestGrossingCountry());
+      console.log(dune2.getLowestGrossingCountry());
+      console.log(dune2.getHighestGrossingCountry());
       //console.log(await BOM_API.getTitlePosterImageSrc(test1[0].movieId));
 
       //const test2= await BOM_API.searchForTitles("jurassic");
