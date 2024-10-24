@@ -6,6 +6,7 @@ var session = require("express-session");
 // Hide away all API keys in here
 require('dotenv').config();
 
+// Ensure you have  '.env' file in the root directory with validm tokens for the following:
 const MAPBOX_API_KEY = process.env.MAPBOX_API_KEY;
 const THE_ONE_API_KEY = process.env.THE_ONE_API_BEARER_TOKEN;
 

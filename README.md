@@ -19,12 +19,30 @@
 | `db` | All SQL files to Create, Insert and Update Tables to interface properly with the app |
 | `src`| All the essential EJS, JavaScript, and CSS files for the application|
 
-# TEMPLATE USAGE
- - Clone Repo
- - NPM init -y in the root directory to install all relevant modules
- - (OPTIONAL) Run index.js to confirm local hosting works
- - Run the SQL commands to allow DB communication
- - Enjoy
+----
+
+# Installation
+Clone the repository.
+```
+git clone https://github.com/PrimalRex/Box-Office-Atlas.git
+```
+
+Install Node Dependencies & Packages.
+```
+npm init -y
+```
+
+Remove the 'template' prefix ```template.env``` on the environment config and fill with valid API Keys. It is important these are valid as the app will not execute without them.
+
+Execute all SQL files in the ```db``` directory to ensure the app can properly communicate to the Database backend.
+
+(OPTIONAL) Launch a local instance of the app to verify that everything has been setup properly.
+```
+node index.js
+```
+
+Grab some popcorn!
+
 
 
 ```
