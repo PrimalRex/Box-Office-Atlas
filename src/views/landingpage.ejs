@@ -1,38 +1,80 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>Box Office Atlas</title>
-<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-<link href="/css/mapbox-gl.css" rel="stylesheet">
-<script src="/js/mapbox-gl.js"></script>
-<style>
-body { margin: 0; padding: 0; }
-#map { position: absolute; top: 0; bottom: 0; width: 100%; }
-.mapboxgl-ctrl-bottom-right, .mapboxgl-ctrl-bottom-left {
-    display: none !important;
-}
-</style>
+  <meta charset="utf-8">
+  <title>Box Office Atlas</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link href="/css/mapbox-gl.css" rel="stylesheet">
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/loaders.css" rel="stylesheet">
+  <script src="/js/mapbox-gl.js"></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    .mapboxgl-ctrl-bottom-right, .mapboxgl-ctrl-bottom-left {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
-<div id="map"></div>
-<script>
-    mapboxgl.accessToken = '<%= boaData %>';
-</script>
-<script>
+  <!-- Loading Screen -->
+  <div id="loading-overlay">
+    WARMING UP THE JETS
+    <div class="loading">
+		<div class="loading-dot"></div>
+		<div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+    </div>
 
+    <div class="quote-box">
+        <p class="quote">" <%= quote.quote %> "</p>
+        <p class="quote-author"><%= quote.quoteAuthor %></p>
+    </div>
+  </div>
+
+  <!-- Map container -->
+  <div id="map"></div>
+
+  <script>
+    mapboxgl.accessToken = '<%= boaData %>';
+
+    // Initialize map
     const map = new mapboxgl.Map({
-        container: 'map',
-        // Cached style for faster loading
-        style: '/BOAStyle.json',
-        //style: 'mapbox://styles/mapbox/streets-v11',
-        testMode: true,
-        center: [133.775136, -25.274398], // starting position [lng, lat]
-        zoom: 4,
-        minZoom: 2,
-        maxZoom: 4
+      container: 'map',
+      style: '/BOAStyle.json',
+      center: [133.775136, -25.274398], // starting position [lng, lat]
+      zoom: 4,
+      minZoom: 2,
+      maxZoom: 4
     });
 
-</script>
+    document.addEventListener("DOMContentLoaded", async function() {
+        try {
+            const response = await fetch('/api/fetch-data');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const overlay = document.getElementById('loading-overlay');
+
+                // Commence fade-out
+                overlay.classList.add('fade-out');
+                overlay.addEventListener('transitionend', () => {
+                    // Only when the animation is finished do we allow the users to interact with the app and any other elements
+                    overlay.style.display = 'none';
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching API data:', error);
+        }
+    });
+
+
+  </script>
 </body>
 </html>

@@ -18,9 +18,15 @@ const LOTRQUOTES_API = {
     getQuote : async function() {
         try {
             // Character liit specified to keep the quotes nice and sweet
-            const quoteURL = baseURL + `/quote?limit=10`;
+            const quoteURL = baseURL + `/quote?limit=12`;
             const response = await fetch(quoteURL, { headers: headers });
             const data = await response.json();
+
+            // If the API is rate limited, return a default quote
+            if(data.success == false) {
+                return {quote : "Don't Tempt Me Frodo.",
+                        quoteAuthor : "- Gandalf, The Fellowship of the Ring"};
+            }
 
             // Get the data about the quote at random (other data is not relevant)
             const quoteData = data.docs[Math.floor(Math.random() * data.docs.length)];
@@ -37,7 +43,8 @@ const LOTRQUOTES_API = {
             const movie = LOTRQUOTES_API.getMovieName(quoteData.movie);
             //console.log(movie);
 
-            return dialog + " - " + character + ", " + movie;
+            return {quote : dialog ,
+                    quoteAuthor :"- " + character + ", " + movie};
 
         } catch (error) {
             console.error("Error fetching quotes:", error);
