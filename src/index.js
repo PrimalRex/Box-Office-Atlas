@@ -7,6 +7,7 @@ var session = require("express-session");
 require('dotenv').config();
 
 const MAPBOX_API_KEY = process.env.MAPBOX_API_KEY;
+const THE_ONE_API_KEY = process.env.THE_ONE_API_BEARER_TOKEN;
 
 // Create the express application object
 const app = express();
@@ -35,7 +36,7 @@ app.set("view engine", "ejs");
 app.engine("html", ejs.renderFile);
 
 // Define our data
-var boaData = {};
+var boaData = [MAPBOX_API_KEY];
 
 // Requires the main.js file inside the routes folder passing in the Express app and data as arguments.  All the routes will go in this file
 require("./routes/main")(app, boaData);

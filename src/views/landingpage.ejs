@@ -17,8 +17,10 @@ body { margin: 0; padding: 0; }
 <body>
 <div id="map"></div>
 <script>
-    // This token has no privileges, but it is required to use the Mapbox API
-    mapboxgl.accessToken = 'pk.eyJ1IjoicHJpbWFscmV4IiwiYSI6ImNtMm1kaWh2NTBtc3Eya3FzczA1YnJvYjAifQ.xDLRlv9kJfKu2tGnwUs99A';
+    mapboxgl.accessToken = '<%= boaData %>';
+</script>
+<script>
+
     const map = new mapboxgl.Map({
         container: 'map',
         // Cached style for faster loading
@@ -32,6 +34,5 @@ body { margin: 0; padding: 0; }
     });
 
 </script>
-
 </body>
 </html>
