@@ -14,7 +14,7 @@ const performanceChartCategories = Object.freeze({
 const movieDetails = Object.freeze({
     distributor: 'NULL',
     earliestReleaseDate: 'NULL',
-    genre: [],
+    genre: "NULL",
     mpaa: 'NULL',
     runningTime: 'NULL'
 });

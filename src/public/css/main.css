@@ -15,6 +15,11 @@
     src: url('/typefaces/HelveticaNow_Medium.ttf');
 }
 
+@font-face {
+    font-family: 'AvenirNext-Bold';
+    src: url('/typefaces/AvenirNextLTPro-Bold.otf') format("opentype");
+}
+
 /* Loading Screen Overlay */
 #loading-overlay {
     position: fixed;
@@ -22,7 +27,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: hsl(240, 8%, 7%);
+    background-color: hsl(240, 10%, 8%);
     z-index: 9999;
     display: flex;
     flex-direction: column;
@@ -45,11 +50,153 @@
     position: absolute;
     bottom: 10%;
     text-align: center;
-    font: .7em 'HelveticaNow_Regular', sans-serif;
+    color: hsl(240, 100%, 100%);
 }
 
-.quote-author {
-    margin-top: 5px;
-    font: 1em 'HelveticaNow_Bold', sans-serif;
+.quote-box p {
+    font-family: 'AvenirNext-Bold', sans-serif; /* Medium weight for the values */
+    font-size: .75em;
+}
+
+/* Left Panel (Movie Panel) Styles */
+#left-panel {
+    position: fixed;
+    width: 33%;
+    height: 100vh;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    visibility: visible;
+    opacity: 1;
+    z-index: 1000;
+    background-color: hsla(240, 10%, 8%, 1);
+    backdrop-filter: blur(5px);
+    overflow-y: auto;
+}
+
+#movie-details {
+    width: 75%;
+    text-align: center;
+    max-height: 100%;
+}
+
+#movie-poster {
+    max-width: 20vh; 
+    height: auto;
+    margin: 20px 0 5px 0; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
+}
+
+h1 {
+    font: 1.5em 'HelveticaNow_Bold', sans-serif;
     font-style: italic;
+    margin-bottom: 20px;
+    word-wrap: break-word;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+p {
+    font-family: 'HelveticaNow_Regular', sans-serif;
+    font-weight: bold;
+    font-size: 1em;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+#movie-subbox {
+    position: flex;
+    top: 50%;
+    left: 50%;
+    margin: 15px 0px 0px 0px;
+    padding: 10px;
+    background: hsla(240, 4%, 20%, 1);
+  
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); 
+
+    font-family: 'AvenirNext-Bold', sans-serif;
+    font-size: .9em;
+}
+
+
+#movie-info-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    background: hsla(240, 4%, 20%, 1);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); 
+}
+
+#movie-info-table td {
+    padding: 12px 15px; 
+    color: white;
+    font-family: 'AvenirNext-Bold', sans-serif;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#movie-info-table td:first-child {
+    font-family: 'AvenirNext-Bold', sans-serif;
+    font-size: .9em; 
+    font-weight: bold;
+    width: 30%;
+}
+
+#movie-info-table td:nth-child(2) {
+    width: 5%;
+    text-align: center;
+    color: hsla(240, 10%, 60%, 1);
+    font-size: 1.2em; 
+    background: hsl(240, 10%, 8%);
+}
+
+#movie-info-table td:last-child {
+    width: 65%;
+    text-align: left;
+    font-family: 'AvenirNext-Bold', sans-serif; 
+    font-size: .9em;
+}
+
+#movie-info-table tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* Grosses Table */
+#grosses-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    border-radius: 10px; 
+    overflow: hidden;
+    background-color: hsl(240, 10%, 8%);
+  
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); 
+}
+
+#grosses-table th, #grosses-table td {
+    padding: 12px;
+    text-align: center;
+}
+
+#grosses-table th {
+    font-family: 'AvenirNext-Bold', sans-serif;
+    font-size: .9em; 
+    font-weight: bold;
+    background-color: hsl(240, 4%, 20%);
+}
+
+#grosses-table td {
+    font-family: 'AvenirNext-Bold', sans-serif;
+    font-size: 1.2em;
 }

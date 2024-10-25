@@ -43,7 +43,7 @@ const LOTRQUOTES_API = {
             const movie = LOTRQUOTES_API.getMovieName(quoteData.movie);
             //console.log(movie);
 
-            return {quote : dialog ,
+            return {quote : dialog,
                     quoteAuthor :"- " + character + ", " + movie};
 
         } catch (error) {

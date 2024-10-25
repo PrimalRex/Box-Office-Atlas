@@ -10,7 +10,15 @@
   <script src="/js/mapbox-gl.js"></script>
   <style>
     body { margin: 0; padding: 0; }
-    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    /* Mapbox will take up the other 66% of the screen to leave space for the movie info */
+    #map { position: absolute;
+         top: 0;
+         bottom: 0;
+         width: calc(100% - 33%);
+         height: 100vh;
+         margin-left: 33%
+         }
+
     .mapboxgl-ctrl-bottom-right, .mapboxgl-ctrl-bottom-left {
       display: none !important;
     }
@@ -26,10 +34,55 @@
         <div class="loading-dot"></div>
         <div class="loading-dot"></div>
     </div>
-
     <div class="quote-box">
-        <p class="quote">" <%= quote.quote %> "</p>
-        <p class="quote-author"><%= quote.quoteAuthor %></p>
+        <p>"<%= quote.quote %>"</p>
+        <p><strong><%= quote.quoteAuthor %></strong></p>
+    </div>
+  </div> 
+
+  <div id="left-panel">
+    <div id="movie-details">
+        <h1 id="movie-title"><%= movie.title.toUpperCase() %></h1>
+        <p><span id="movie-subbox"><%= movie.movieDetails.earliestReleaseDate %>
+                                        <strong>&nbsp;//&nbsp;</strong>
+                                        <%= movie.movieDetails.runningTime %></span></p>
+        <img id="movie-poster" src="<%= movie.movieImgSrc %>" alt="Movie Poster">
+        <p id="movie-subbox"><%= movie.movieSummary %></p>
+        <table id="movie-info-table">
+            <tr>
+                <td><strong>DISTR.</strong></td>
+                <td><strong>&nbsp;::&nbsp;</strong></td>
+                <td id="movie-distributor"><%= movie.movieDetails.distributor || "UNKNOWN" %></td>
+            </tr>
+            <tr>
+                <td><strong>GENRE(S)</strong></td>
+                <td><strong>&nbsp;::&nbsp;</strong></td>
+                <td id="movie-genre"><%= movie.movieDetails.genre || "UNKNOWN" %></td>
+            </tr>
+            <tr>
+                <td><strong>AUDIENCE</strong></td>
+                <td><strong>&nbsp;::&nbsp;</strong></td>
+                <td id="movie-mpaa"><%= movie.movieDetails.mpaa || "UNKNOWN" %></td>
+            </tr>
+        </table>
+        
+        <!-- Grosses Table -->
+        <table id="grosses-table">
+            <tr>
+                <th>DOMESTIC GROSS <%= movie.movieFinancials.category == 2 ? '(ALL RELEASES)' : '' %></th>
+                <th>INTERNATIONAL GROSS <%= movie.movieFinancials.category == 2 ? '(ALL RELEASES)' : '' %></th>
+            </tr>
+            <tr>
+                <td><strong><%= movie.movieFinancials.domesticGross %></strong></td>
+                <td><strong><%= movie.movieFinancials.internationalGross %></strong></td>
+            </tr>
+            <tr>
+                <th colspan="2">WORLDWIDE TOTAL <%= movie.movieFinancials.category == 2 ? '(ALL RELEASES)' : '' %></th>
+            </tr>
+            <tr>
+                <td colspan="2"><strong><%= movie.movieFinancials.worldwideGross %></strong></td>
+            </tr>
+        </table>
     </div>
   </div>
 
@@ -43,10 +96,10 @@
     const map = new mapboxgl.Map({
       container: 'map',
       style: '/BOAStyle.json',
-      center: [133.775136, -25.274398], // starting position [lng, lat]
-      zoom: 4,
-      minZoom: 2,
-      maxZoom: 4
+      center: [133.775136, -25.274398], // starting position [lng, lat] (awkward why this is flipped)
+      zoom: 2.5,
+      minZoom: 1.5,
+      maxZoom: 3,
     });
 
     document.addEventListener("DOMContentLoaded", async function() {

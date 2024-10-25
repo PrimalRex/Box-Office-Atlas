@@ -87,26 +87,37 @@ const BOM_API = {
                 let value = $(movieDetails[i]).next().text().trim().replace(/\n/g, '');
             
                 if(label.includes('Domestic Distributor')) {
-                    value = value.split('See full company information')[0];
+                    value = value.split('See full company information')[0].toUpperCase();
                 }
 
                 // Clean the 'Earliest Release Date' to only get the date
                 if (label.includes('Earliest Release Date')) {
                     var date = value.split(' ');
                     // Returns the date ideally like "February 01, 2000"
-                    value = date[0] + ' ' + date[1] + ' ' + date[2];
+                    value = date[0].toUpperCase() + ' ' + date[1] + ' ' + date[2];
                 }
                 
                 if(label.includes('Genres')) {
                     // Split the genres into an array by checking spaces between each of the words
-                    value = value.split(/\s{1,}/);
+                    const temp = value.split(/\s{1,}/);
+                    var genres = "";
+                    // Iterate over the temp values and create a clean string for the genres
+                    for (let i = 0; i < Math.min(temp.length, 3); i++) {
+                        genres += temp[i] + (i == Math.min(temp.length, 3) -1 ? ' ' : ', ');
+                    }
+                    value = genres.toUpperCase();
 
                 }
-            
+
+                if(label.includes('Running Time')) {
+                    value = value.toUpperCase();
+                }
+
                 // Filter out unwanted labels like 'Domestic Opening' and 'IMDbPro'
                 if (!label.includes('Domestic Opening') && !label.includes('IMDbPro')) {
                     if (label && value) {
                         sanitizedDetails[label] = value;
+                        //console.log(label + " : " + value);
                     }
                 }
             }
@@ -204,14 +215,15 @@ const BOM_API = {
                 worldwideGross,
                 domesticGross,
                 internationalGross,
-                grossByCountry: globalGrossDataByCountry
+                grossByCountry: globalGrossDataByCountry,
+                category : performanceChartCategory
             });
             movieData.setMovieDetails({ 
                 distributor: sanitizedDetails['Domestic Distributor'],
                 earliestReleaseDate: sanitizedDetails['Earliest Release Date'],
                 genre: sanitizedDetails['Genres'],
                 mpaa: sanitizedDetails['MPAA'],
-                runningTime: sanitizedDetails['Running Time'] 
+                runningTime: sanitizedDetails['Running Time']
             });
 
             return movieData;
