@@ -7,6 +7,12 @@
 
 **Box Office Atlas** aka **"BOA"** is a web-app that visualizes the global economic performance of box office films, providing users with an interactive way to explore their favourite films' success. 
 
+![image](https://github.com/user-attachments/assets/80ea65d3-36e2-4819-b6ea-c12964812a2d)
+
+```
+SNAPSHOT FROM OCTOBER 25TH, 2024
+```
+
 **FILL OTHER INFORMATION ABOUT ARCHITECTURE HERE**
 
 ----
