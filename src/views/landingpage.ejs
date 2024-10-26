@@ -10,11 +10,11 @@
   <script src="/js/mapbox-gl.js"></script>
   <style>
     body { margin: 0; padding: 0; }
-    /* Mapbox will take up the other 66% of the screen to leave space for the movie info */
+    /* Mapbox will take up the other 67% of the screen to leave space for the movie info */
     #map { position: absolute;
          top: 0;
          bottom: 0;
-         width: calc(100% - 33%);
+         width: 67%;
          height: 100vh;
          margin-left: 33%
          }
@@ -27,7 +27,7 @@
 <body>
   <!-- Loading Screen -->
   <div id="loading-overlay">
-    WARMING UP THE JETS
+    <%= loadingMessage %>
     <div class="loading">
 		<div class="loading-dot"></div>
 		<div class="loading-dot"></div>
@@ -42,45 +42,45 @@
 
   <div id="left-panel">
     <div id="movie-details">
-        <h1 id="movie-title"><%= movie.title.toUpperCase() %></h1>
-        <p><span id="movie-subbox"><%= movie.movieDetails.earliestReleaseDate %>
-                                        <strong>&nbsp;//&nbsp;</strong>
-                                        <%= movie.movieDetails.runningTime %></span></p>
-        <img id="movie-poster" src="<%= movie.movieImgSrc %>" alt="Movie Poster">
-        <p id="movie-subbox"><%= movie.movieSummary %></p>
+        <h1 id="movie-title">SELECT A MOVIE</h1>
+        <p><span id="movie-subbox">//////////</span></p>
+        <img id="movie-poster" src="/images/BOAIconTransparent.png" alt="Movie Poster">
+        <p id="movie-summary">BOA can extract out any and all movie summaries! Need to know more about a film you're looking at? You've found the
+            right panel!
+        </p>
         <table id="movie-info-table">
             <tr>
                 <td><strong>DISTR.</strong></td>
                 <td><strong>&nbsp;::&nbsp;</strong></td>
-                <td id="movie-distributor"><%= movie.movieDetails.distributor || "UNKNOWN" %></td>
+                <td id="movie-distributor"> WAITING... </td>
             </tr>
             <tr>
                 <td><strong>GENRE(S)</strong></td>
                 <td><strong>&nbsp;::&nbsp;</strong></td>
-                <td id="movie-genre"><%= movie.movieDetails.genre || "UNKNOWN" %></td>
+                <td id="movie-genre"> WAITING... </td>
             </tr>
             <tr>
                 <td><strong>AUDIENCE</strong></td>
                 <td><strong>&nbsp;::&nbsp;</strong></td>
-                <td id="movie-mpaa"><%= movie.movieDetails.mpaa || "UNKNOWN" %></td>
+                <td id="movie-mpaa"> Not Rated Yet </td>
             </tr>
         </table>
         
         <!-- Grosses Table -->
         <table id="grosses-table">
             <tr>
-                <th>DOMESTIC GROSS <%= movie.movieFinancials.category == 2 ? '(ALL RELEASES)' : '' %></th>
-                <th>INTERNATIONAL GROSS <%= movie.movieFinancials.category == 2 ? '(ALL RELEASES)' : '' %></th>
+                <th>DOMESTIC GROSS</th>
+                <th>INTERNATIONAL GROSS</th>
             </tr>
             <tr>
-                <td><strong><%= movie.movieFinancials.domesticGross %></strong></td>
-                <td><strong><%= movie.movieFinancials.internationalGross %></strong></td>
+                <td><strong> $ ? </strong></td>
+                <td><strong> $ ? </strong></td>
             </tr>
             <tr>
-                <th colspan="2">WORLDWIDE TOTAL <%= movie.movieFinancials.category == 2 ? '(ALL RELEASES)' : '' %></th>
+                <th colspan="2">WORLDWIDE TOTAL</th>
             </tr>
             <tr>
-                <td colspan="2"><strong><%= movie.movieFinancials.worldwideGross %></strong></td>
+                <td colspan="2"><strong> $ ? </td>
             </tr>
         </table>
     </div>
@@ -91,28 +91,97 @@
 
   <script>
     mapboxgl.accessToken = '<%= boaData %>';
-
     // Initialize map
     const map = new mapboxgl.Map({
       container: 'map',
       style: '/BOAStyle.json',
-      center: [133.775136, -25.274398], // starting position [lng, lat] (awkward why this is flipped)
+      center:[-98.5795, 39.8283], // starting position [lng, lat] (awkward why this is flipped)
       zoom: 2.5,
       minZoom: 1.5,
       maxZoom: 3,
     });
+
 
     document.addEventListener("DOMContentLoaded", async function() {
         try {
             const response = await fetch('/api/fetch-data');
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`Not an OK response from kick-off.... error! status: ${response.status}`);
             }
             
             const data = await response.json();
             
             if (data.success) {
+                var boaData = data.boaData;
+
+                // Update title and release info
+                document.getElementById('movie-title').innerText = data.movie.title.toUpperCase();
+                document.querySelector('#movie-subbox').innerText = `${data.movie.movieDetails.earliestReleaseDate || "TBC"}  // ${data.movie.movieDetails.runningTime || "TBC"}`;
+
+                // Update movie poster image
+                document.getElementById('movie-poster').src = data.movie.movieImgSrc;
+
+                // Update movie summary
+                document.getElementById('movie-summary').innerText = data.movie.movieSummary;
+
+                // Update distributor, genre, and MPAA rating
+                document.getElementById('movie-distributor').innerText = data.movie.movieDetails.distributor || "UNKNOWN";
+                document.getElementById('movie-genre').innerText = data.movie.movieDetails.genre || "UNKNOWN";
+                document.getElementById('movie-mpaa').innerText = data.movie.movieDetails.mpaa || "NOT RATED YET";
+
+                // Update grosses table
+                document.querySelector('#grosses-table th:nth-child(1)').innerText = `DOMESTIC GROSS ${data.movie.movieFinancials.category == 2 ? '*' : ''}`;
+                document.querySelector('#grosses-table th:nth-child(2)').innerText = `INTERNATIONAL GROSS ${data.movie.movieFinancials.category == 2 ? '*' : ''}`;
+                document.querySelector('#grosses-table td:nth-child(1) strong').innerText = data.movie.movieFinancials.domesticGross;
+                document.querySelector('#grosses-table td:nth-child(2) strong').innerText = data.movie.movieFinancials.internationalGross;
+                document.querySelector('#grosses-table th[colspan="2"]').innerText = `WORLDWIDE TOTAL ${data.movie.movieFinancials.category == 2 ? ' *(ALL RELEASES)' : ''}`;
+                document.querySelector('#grosses-table td[colspan="2"] strong').innerText = data.movie.movieFinancials.worldwideGross;
+
+                // Update the map style with geoData and movie color
+                var color = (data.movie.movieImgColor);
+
+                // Cache the geodata for later use ?
+                const geoData = data.geoData;
+
+                // Whether or not to use a heatmap color scheme (Greener = higher gross, Redder = lower gross)
+                const heatmap = false;
+
+                // Iterate through the geoData and add a source and layer for each country
+                for (let i = 0; i < geoData.length; i++) {
+                    const data = geoData[i].geoData;
+                    const alpha = parseFloat(geoData[i].countryGross);
+                    const sourceId = "country" + i.toString();
+                    const fillLayerId = sourceId + "_fill";
+
+                    // If we're using a heatmap, we'll use a gradient from green to red and adjust the alpha value based on gross
+                    if (heatmap) {
+                        const r = Math.round(255 + (0 - 255) * alpha);
+                        const g = Math.round(0 + (255 - 0) * alpha);
+                        const b = 0;
+                        color = `rgb(${r}, ${g}, ${b})`;
+                    }
+                    
+                    map.addSource(sourceId, {
+                        type: 'geojson',
+                        data: data
+                    });
+
+                    // Add a fill layer for the country outline
+                    map.addLayer({
+                        'id': fillLayerId,
+                        'type': 'fill',
+                        'source': sourceId,
+                        'layout': {},
+                        'paint': {
+                            'fill-color': color,
+                            'fill-emissive-strength': alpha,
+                            'fill-opacity': alpha
+                        }
+                    });
+                }
+
+                // Fade out the loading overlay now that we've done all jobs
                 const overlay = document.getElementById('loading-overlay');
 
                 // Commence fade-out
