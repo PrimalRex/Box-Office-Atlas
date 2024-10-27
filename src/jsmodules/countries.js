@@ -242,27 +242,27 @@ const countryCoords = {
                          "Zimbabwe":{coords : [-19.015438,29.154857],    code : "ZW"}
 }; 
 const COUNTRY_MODULE = {
-    getCountryCoords: function(country) {
-        var coords = countryCoords[country].coords;
-        return [coords[1], coords[0]];
-    },
+  getCountryCoords: function (country) {
+    var coords = countryCoords[country].coords;
+    return [coords[1], coords[0]];
+  },
 
-    getCountryCode: function(country) {
-      //console.log(country);
-      if(countryCoords[country] === undefined){
-        console.log("Don't know the XX code for " + country);
-        return "N/A";
-      }
-      return countryCoords[country].code;
-    },
+  getCountryCode: function (country) {
+    //console.log(country);
+    if (countryCoords[country] === undefined) {
+      console.log("Don't know the XX code for " + country);
+      return "N/A";
+    }
+    return countryCoords[country].code;
+  },
 
-    getCountryNameFromCode: function(countryCode){
-      for (var country in countryCoords){
-        if (countryCoords[country].code === countryCode){
-          return country;
-        }
+  getCountryNameFromCode: function (countryCode) {
+    for (var country in countryCoords) {
+      if (countryCoords[country].code === countryCode) {
+        return country;
       }
     }
-}
+  },
+};
 
 module.exports = COUNTRY_MODULE;

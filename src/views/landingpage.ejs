@@ -14,13 +14,18 @@
     #map { position: absolute;
          top: 0;
          bottom: 0;
-         width: 67%;
+         width: 70%;
          height: 100vh;
-         margin-left: 33%
+         margin-left: 30%;
          }
 
     .mapboxgl-ctrl-bottom-right, .mapboxgl-ctrl-bottom-left {
       display: none !important;
+    }
+
+    .mapboxgl-canvas{
+        mask-image: linear-gradient(to left, hsl(240, 10%, 8%) 98%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to left, hsl(240, 10%, 8%) 98%, transparent 100%);
     }
   </style>
 </head>
@@ -98,21 +103,26 @@
       center:[-98.5795, 39.8283], // starting position [lng, lat] (awkward why this is flipped)
       zoom: 2.5,
       minZoom: 1.5,
-      maxZoom: 3,
+      maxZoom: 5,
     });
 
+    // Array to store all the markers on the map
+    const markers = [];
 
+    // Once all the elements on the page have loaded we will ask the server to provide us with some data to use
     document.addEventListener("DOMContentLoaded", async function() {
         try {
             const response = await fetch('/api/fetch-data');
             
             if (!response.ok) {
+                // Usually occurs when theres an error in some sort of setup or an unlikely ratelimit from IMDb
                 throw new Error(`Not an OK response from kick-off.... error! status: ${response.status}`);
             }
             
             const data = await response.json();
             
             if (data.success) {
+                // Cache this temp data ? not sure what to use it for right now
                 var boaData = data.boaData;
 
                 // Update title and release info
@@ -150,7 +160,7 @@
                 // Iterate through the geoData and add a source and layer for each country
                 for (let i = 0; i < geoData.length; i++) {
                     const data = geoData[i].geoData;
-                    const alpha = parseFloat(geoData[i].countryGross);
+                    const alpha = parseFloat(geoData[i].countryGrossAlpha);
                     const sourceId = "country" + i.toString();
                     const fillLayerId = sourceId + "_fill";
 
@@ -179,8 +189,43 @@
                             'fill-opacity': alpha
                         }
                     });
-                }
 
+                    const marker = new mapboxgl.Marker({
+                        color: 'hsl(240, 20%, 4%)',
+                        clickTolerance: 50
+                    });
+                    marker.setLngLat(geoData[i].coords);
+                    marker.addTo(map);
+                    marker.getElement().classList.add('fade-marker');
+
+                    // Add country name and gross info to the marker
+                    const countryFinancial = document.createElement('div');
+                    countryFinancial.innerText = geoData[i].countryGross + " // " + geoData[i].countryGrossPercentage + "%";
+                    countryFinancial.id = 'marker-country-financial';
+                    marker.getElement().appendChild(countryFinancial);
+
+                    const countryName = document.createElement('div');
+                    countryName.innerText = geoData[i].country;
+                    countryName.id = 'marker-country';
+                    marker.getElement().appendChild(countryName);
+
+                    // Add event listeners to show/hide country name & gross info on hover
+                    marker.getElement().addEventListener('mouseenter', () => {
+                        marker.getElement().querySelector('#marker-country-financial').classList.add('visible');
+                        marker.getElement().querySelector('#marker-country').classList.add('visible');
+
+                        // Only feasible solution to overlapping - making the hovered element a hugely higher z-index
+                        // Other solutions can include items being reorderd in the DOM but will not be nice for performance
+                        marker.getElement().style.zIndex = 9998;
+                    });
+                    marker.getElement().addEventListener('mouseleave', () => {
+                        marker.getElement().querySelector('#marker-country-financial').classList.remove('visible');
+                        marker.getElement().querySelector('#marker-country').classList.remove('visible');
+                        marker.getElement().style.zIndex = 1;
+                    });
+
+                    markers.push(marker);
+                }
                 // Fade out the loading overlay now that we've done all jobs
                 const overlay = document.getElementById('loading-overlay');
 
@@ -189,6 +234,8 @@
                 overlay.addEventListener('transitionend', () => {
                     // Only when the animation is finished do we allow the users to interact with the app and any other elements
                     overlay.style.display = 'none';
+                    
+                    updateMarkerOpacity();
                 });
             }
         } catch (error) {
@@ -196,7 +243,38 @@
         }
     });
 
+    // Function to update the opacity of each marker based on distance from the center of the map
+    function updateMarkerOpacity() {
+        // Really unlikely but if we're trying to execute this twice in the same frame we should stop the frame
+        let animationFrameId;
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        animationFrameId = requestAnimationFrame(() => {
+            const center = map.getCenter();
+            // Scale the threshold by the zoom level - if we don't do this then at close levels the markers will be too close together and
+            // too close to the borders of the screen which is not ideal for visibility
+            const visibilityThreshold = 5000000 / (map.getZoom()  +  0);
+            //console.log((visibilityThreshold));
 
+            for (let i = 0; i < markers.length; i++) {
+                const markerLngLat = markers[i].getLngLat();
+                const distance = markerLngLat.distanceTo(center);
+
+                if (distance < visibilityThreshold) {
+                    markers[i].getElement().classList.add('visible');
+                } else {
+                    markers[i].getElement().classList.remove('visible');
+                }
+            }
+        });
+    }
+
+    // Listen for changes in camera position
+    map.on('move', () => {;
+        updateMarkerOpacity();
+    });
+    
   </script>
 </body>
 </html>
