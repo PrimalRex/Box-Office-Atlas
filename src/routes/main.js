@@ -27,52 +27,63 @@ module.exports = function (app, boaData) {
       "BINDING THE POWER OF DOOM",
       "READING THE LATVERIAN CODEX",
       "CHANNELING DOOM'S WISDOM",
-      "INVOKING THE WILL OF DOOM"
+      "INVOKING THE WILL OF DOOM",
     ];
 
-    const selectedLoadingMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+    const selectedLoadingMessage =
+      loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
 
     res.render("landingpage.ejs", {
       boaData,
       quote,
       loadingMessage: selectedLoadingMessage,
-      loadingMessages
+      loadingMessages,
     });
   });
 
+  // When the user enters a title search query we will process it here
   app.post("/api/submit-title-search", async (req, res) => {
     try {
-        const searchQuery = req.body.searchText; // Access the query from the request body
-        console.log("Received search query:", searchQuery);
+      // Access the query from the request body and ensure it's a valid length and does not contain any special HTML character
+      const searchQuery = req.body.searchText;
+      console.log("Received search query:", searchQuery);
 
-        const searchResult = await BOM_API.searchForTitles(searchQuery);
-        var firstMovieFromResult = await BOM_API.createBoxOfficeBreakdownForTitle(
-          searchResult[0].movieId
+      // Server-side validation to ensure the search query is not empty
+      if(searchQuery.length < 1) {
+        console.error("Invalid search query! Could be malicious?");
+        res.status(500).json({ error: "Invalid search query! Could be malicious?" });
+      }
+
+      // Perform the API calls to grab movies, choose a movie, source the images, get a color average and find the country grosses
+      const searchResult = await BOM_API.searchForTitles(searchQuery);
+      var firstMovieFromResult = await BOM_API.createBoxOfficeBreakdownForTitle(
+        searchResult[0].movieId
+      );
+      firstMovieFromResult.setMovieImgSrc(
+        await BOM_API.getTitlePosterImageSrc(firstMovieFromResult.getTtID())
+      );
+      await firstMovieFromResult.setAveragePixelColorFromPoster();
+      var geo = {};
+      if (firstMovieFromResult.getCountryGrossesAsAlpha().length != 0) {
+        geo = await WORLD_GEO_JSON_MODULE.createGeoDataInfoFromAlpha(
+          firstMovieFromResult.getCountryGrossesAsAlpha()
         );
-        firstMovieFromResult.setMovieImgSrc(
-          await BOM_API.getTitlePosterImageSrc(firstMovieFromResult.getTtID())
-        );
-        await firstMovieFromResult.setAveragePixelColorFromPoster();
-        var geo = {};
-        if (firstMovieFromResult.getCountryGrossesAsAlpha().length != 0) {
-          geo = await WORLD_GEO_JSON_MODULE.createGeoDataInfoFromAlpha(
-            firstMovieFromResult.getCountryGrossesAsAlpha()
-          );
-        }
-        console.log(firstMovieFromResult);
-        res.json({
-          success: true,
-          message: "Search is clean & all API calls complete! GOOD TO GO!",
-          boaData,
-          movie: firstMovieFromResult,
-          geoData: geo,
-        });
+      }
+      
+      // Return the data to the front end
+      //console.log(firstMovieFromResult);
+      res.json({
+        success: true,
+        message: "Search is clean & all API calls complete! GOOD TO GO!",
+        boaData,
+        movie: firstMovieFromResult,
+        geoData: geo,
+      });
     } catch (error) {
-        console.error("Error processing search query:", error);
-        res.status(500).json({ error: "An error occurred" });
+      console.error("Error processing search query:", error);
+      res.status(500).json({ error: "An error occurred" });
     }
   });
-
 
   app.get("/api/fetch-data", async (req, res) => {
     try {
