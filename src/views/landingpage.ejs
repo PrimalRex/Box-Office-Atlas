@@ -8,6 +8,7 @@
   <link href="/css/main.css" rel="stylesheet">
   <link href="/css/loaders.css" rel="stylesheet">
   <script src="/js/mapbox-gl.js"></script>
+  <script src="/js/landingpage.js" type="text/javascript"></script> 
   <style>
     body { margin: 0; padding: 0; }
     /* Mapbox will take up the other 67% of the screen to leave space for the movie info */
@@ -32,7 +33,9 @@
 <body>
   <!-- Loading Screen -->
   <div id="loading-overlay">
-    <%= loadingMessage %>
+    <div id="loading-message">
+        <%= loadingMessage %>
+    </div>
     <div class="loading">
 		<div class="loading-dot"></div>
 		<div class="loading-dot"></div>
@@ -44,6 +47,24 @@
         <p><strong><%= quote.quoteAuthor %></strong></p>
     </div>
   </div> 
+  
+  <!-- Top Nav Bar -->
+  <div id="top-nav-bar">
+    <div id="top-nav-bar-content">
+        <div id="search-bar">
+            <div id="search-icon">
+                <img src="/images/SearchIcon.png">
+            </div>
+            <input type="text" id="search-input" placeholder="Search for Titles">
+        </div>
+        <div id="user-profile">
+            <img src="/images/UserProfileIcon.png" alt="User Profile">
+        </div>
+        <div id="boa-logo">
+            <img src="/images/BOAIconTransparent.png" alt="BOA Logo">
+        </div>
+    </div>
+  </div>
 
   <div id="left-panel">
     <div id="movie-details">
@@ -64,11 +85,6 @@
                 <td><strong>&nbsp;::&nbsp;</strong></td>
                 <td id="movie-genre"> WAITING... </td>
             </tr>
-            <tr>
-                <td><strong>AUDIENCE</strong></td>
-                <td><strong>&nbsp;::&nbsp;</strong></td>
-                <td id="movie-mpaa"> Not Rated Yet </td>
-            </tr>
         </table>
         
         <!-- Grosses Table -->
@@ -88,6 +104,12 @@
                 <td colspan="2"><strong> $ ? </td>
             </tr>
         </table>
+
+        <table id="grosses-table">
+            <tr>
+                <th>SAVE MOVIE</th>
+            </tr>
+        </table>
     </div>
   </div>
 
@@ -100,14 +122,64 @@
     const map = new mapboxgl.Map({
       container: 'map',
       style: '/BOAStyle.json',
-      center:[-98.5795, 39.8283], // starting position [lng, lat] (awkward why this is flipped)
-      zoom: 2.5,
+      center:[-90, 0], // starting position [lng, lat] (awkward why this is flipped)
+      zoom: 1.5,
       minZoom: 1.5,
-      maxZoom: 5,
+      maxZoom: 4,
     });
 
     // Array to store all the markers on the map
-    const markers = [];
+    var markers = [];
+
+    // Variable to store whether the mouse is over the top nav bar
+    var isMouseOverTopNavBar = false;
+
+    document.getElementById("search-input").addEventListener("keydown", async function(event) {
+    // Check if the Enter key is pressed
+    if (event.key === "Enter") {
+        // Capture the input value and validate that its not empty
+        const searchInput = document.getElementById('search-input');
+        const searchText = event.target.value;
+        searchInput.value = '';
+
+        if(searchText.length > 0){
+                // Throw up a different message
+                loadingMessage = document.getElementById('loading-message');
+                loadingMessage.innerText = '<%= loadingMessages[Math.floor(Math.random() * loadingMessages.length)] %>';
+
+                // Grab the loading overlay and make it visible
+                const overlay = document.getElementById('loading-overlay');
+                overlay.classList.remove('fade-out');
+                overlay.style.display = 'flex';
+
+                const response = await fetch('/api/submit-title-search', {
+                    method: 'POST',
+                    body: JSON.stringify({ searchText: searchText }),
+                    headers: new Headers({ "Content-Type": "application/json" })
+                });
+
+                const data = await response.json();
+
+                if(data.success){
+                    // Clears existing globe info and update the landing page with the new movie data
+                    clearMarkersAndLayers(markers, map);
+                    updateLandingPageWithMovieData(data);
+                    
+                    // Commence fade-out after 200 ms (DOM needs some time to make the changes)
+                    setTimeout(() => {
+                        overlay.classList.add('fade-out');
+                        updateMarkerOpacity();
+                        overlay.addEventListener('transitionend', () => {
+                            overlay.style.display = 'none';
+                            updateMarkerOpacity();
+                        });
+                    }, 200);
+                } else {
+                    console.error('Error fetching API data:', data);
+                }
+            }
+        }
+    });
 
     // Once all the elements on the page have loaded we will ask the server to provide us with some data to use
     document.addEventListener("DOMContentLoaded", async function() {
@@ -123,156 +195,59 @@
             
             if (data.success) {
                 // Cache this temp data ? not sure what to use it for right now
-                var boaData = data.boaData;
+                //var boaData = data.boaData;
 
-                // Update title and release info
-                document.getElementById('movie-title').innerText = data.movie.title.toUpperCase();
-                document.querySelector('#movie-subbox').innerText = `${data.movie.movieDetails.earliestReleaseDate || "TBC"}  // ${data.movie.movieDetails.runningTime || "TBC"}`;
+                // Grab the loading overlay and update the message
+                loadingMessage = document.getElementById('loading-message');
+                loadingMessage.innerText = "COOLING THE AFTERBURNERS...";
 
-                // Update movie poster image
-                document.getElementById('movie-poster').src = data.movie.movieImgSrc;
+                // Empty markers array and update the landing page with the new movie data
+                clearMarkersAndLayers(markers, map);
 
-                // Update movie summary
-                document.getElementById('movie-summary').innerText = data.movie.movieSummary;
+                updateLandingPageWithMovieData(data);
 
-                // Update distributor, genre, and MPAA rating
-                document.getElementById('movie-distributor').innerText = data.movie.movieDetails.distributor || "UNKNOWN";
-                document.getElementById('movie-genre').innerText = data.movie.movieDetails.genre || "UNKNOWN";
-                document.getElementById('movie-mpaa').innerText = data.movie.movieDetails.mpaa || "NOT RATED YET";
-
-                // Update grosses table
-                document.querySelector('#grosses-table th:nth-child(1)').innerText = `DOMESTIC GROSS ${data.movie.movieFinancials.category == 2 ? '*' : ''}`;
-                document.querySelector('#grosses-table th:nth-child(2)').innerText = `INTERNATIONAL GROSS ${data.movie.movieFinancials.category == 2 ? '*' : ''}`;
-                document.querySelector('#grosses-table td:nth-child(1) strong').innerText = data.movie.movieFinancials.domesticGross;
-                document.querySelector('#grosses-table td:nth-child(2) strong').innerText = data.movie.movieFinancials.internationalGross;
-                document.querySelector('#grosses-table th[colspan="2"]').innerText = `WORLDWIDE TOTAL ${data.movie.movieFinancials.category == 2 ? ' *(ALL RELEASES)' : ''}`;
-                document.querySelector('#grosses-table td[colspan="2"] strong').innerText = data.movie.movieFinancials.worldwideGross;
-
-                // Update the map style with geoData and movie color
-                var color = (data.movie.movieImgColor);
-
-                // Cache the geodata for later use ?
-                const geoData = data.geoData;
-
-                // Whether or not to use a heatmap color scheme (Greener = higher gross, Redder = lower gross)
-                const heatmap = false;
-
-                // Iterate through the geoData and add a source and layer for each country
-                for (let i = 0; i < geoData.length; i++) {
-                    const data = geoData[i].geoData;
-                    const alpha = parseFloat(geoData[i].countryGrossAlpha);
-                    const sourceId = "country" + i.toString();
-                    const fillLayerId = sourceId + "_fill";
-
-                    // If we're using a heatmap, we'll use a gradient from green to red and adjust the alpha value based on gross
-                    if (heatmap) {
-                        const r = Math.round(255 + (0 - 255) * alpha);
-                        const g = Math.round(0 + (255 - 0) * alpha);
-                        const b = 0;
-                        color = `rgb(${r}, ${g}, ${b})`;
-                    }
-                    
-                    map.addSource(sourceId, {
-                        type: 'geojson',
-                        data: data
-                    });
-
-                    // Add a fill layer for the country outline
-                    map.addLayer({
-                        'id': fillLayerId,
-                        'type': 'fill',
-                        'source': sourceId,
-                        'layout': {},
-                        'paint': {
-                            'fill-color': color,
-                            'fill-emissive-strength': alpha,
-                            'fill-opacity': alpha
-                        }
-                    });
-
-                    const marker = new mapboxgl.Marker({
-                        color: 'hsl(240, 20%, 4%)',
-                        clickTolerance: 50
-                    });
-                    marker.setLngLat(geoData[i].coords);
-                    marker.addTo(map);
-                    marker.getElement().classList.add('fade-marker');
-
-                    // Add country name and gross info to the marker
-                    const countryFinancial = document.createElement('div');
-                    countryFinancial.innerText = geoData[i].countryGross + " // " + geoData[i].countryGrossPercentage + "%";
-                    countryFinancial.id = 'marker-country-financial';
-                    marker.getElement().appendChild(countryFinancial);
-
-                    const countryName = document.createElement('div');
-                    countryName.innerText = geoData[i].country;
-                    countryName.id = 'marker-country';
-                    marker.getElement().appendChild(countryName);
-
-                    // Add event listeners to show/hide country name & gross info on hover
-                    marker.getElement().addEventListener('mouseenter', () => {
-                        marker.getElement().querySelector('#marker-country-financial').classList.add('visible');
-                        marker.getElement().querySelector('#marker-country').classList.add('visible');
-
-                        // Only feasible solution to overlapping - making the hovered element a hugely higher z-index
-                        // Other solutions can include items being reorderd in the DOM but will not be nice for performance
-                        marker.getElement().style.zIndex = 9998;
-                    });
-                    marker.getElement().addEventListener('mouseleave', () => {
-                        marker.getElement().querySelector('#marker-country-financial').classList.remove('visible');
-                        marker.getElement().querySelector('#marker-country').classList.remove('visible');
-                        marker.getElement().style.zIndex = 1;
-                    });
-
-                    markers.push(marker);
-                }
                 // Fade out the loading overlay now that we've done all jobs
                 const overlay = document.getElementById('loading-overlay');
-
-                // Commence fade-out
-                overlay.classList.add('fade-out');
-                overlay.addEventListener('transitionend', () => {
-                    // Only when the animation is finished do we allow the users to interact with the app and any other elements
-                    overlay.style.display = 'none';
-                    
+                // Commence fade-out after 200 ms (DOM needs some time to make the changes)
+                setTimeout(() => {
+                    overlay.classList.add('fade-out');
                     updateMarkerOpacity();
-                });
+                    map.flyTo({
+                        center: [0,0],
+                        zoom: 2,
+                        speed: .8, 
+                        curve: 1 
+                    });
+                    overlay.addEventListener('transitionend', () => {
+                        // Only when the animation is finished do we allow the users to interact with the app and any other elements
+                        overlay.style.display = 'none';
+                        updateMarkerOpacity();
+                    });
+                }, 200);
             }
         } catch (error) {
             console.error('Error fetching API data:', error);
         }
     });
 
-    // Function to update the opacity of each marker based on distance from the center of the map
-    function updateMarkerOpacity() {
-        // Really unlikely but if we're trying to execute this twice in the same frame we should stop the frame
-        let animationFrameId;
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-        }
-        animationFrameId = requestAnimationFrame(() => {
-            const center = map.getCenter();
-            // Scale the threshold by the zoom level - if we don't do this then at close levels the markers will be too close together and
-            // too close to the borders of the screen which is not ideal for visibility
-            const visibilityThreshold = 5000000 / (map.getZoom()  +  0);
-            //console.log((visibilityThreshold));
-
-            for (let i = 0; i < markers.length; i++) {
-                const markerLngLat = markers[i].getLngLat();
-                const distance = markerLngLat.distanceTo(center);
-
-                if (distance < visibilityThreshold) {
-                    markers[i].getElement().classList.add('visible');
-                } else {
-                    markers[i].getElement().classList.remove('visible');
-                }
-            }
-        });
-    }
-
     // Listen for changes in camera position
-    map.on('move', () => {;
+    map.on('move', () => {
         updateMarkerOpacity();
+    });
+
+    // Listen for changes in zoom level so we can update the nav bar visibility
+    map.on('zoomstart', () => {
+        // If we're zooming that means we lost focus on the nav bar so we can safely assume its not hovered
+        isMouseOverTopNavBar = false;
+    });
+    map.on('zoomend', () => {
+        // Check zoom and also check if nav bar is currently hovered or not
+        if(map.getZoom() >= 2.5 && !isMouseOverTopNavBar){
+            document.getElementById('top-nav-bar').classList.remove('visible');
+        }
+        else if (!isMouseOverTopNavBar){
+            document.getElementById('top-nav-bar').classList.add('visible');
+        }
     });
     
   </script>

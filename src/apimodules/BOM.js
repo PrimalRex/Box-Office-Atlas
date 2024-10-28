@@ -68,7 +68,8 @@ const BOM_API = {
       var movieData = new movie(ttID);
 
       // Extract the movie title (we don't really need to do this but since we've requested it we might as well use it)
-      const title = $(".a-size-extra-large").first().text().trim();
+      // Additonally strip the release year as we already have that information in the details
+      const title = ($(".a-size-extra-large").first().text().trim()).split("(")[0];
 
       // Extract the description of the movie
       const summary = $("span.a-size-medium").first().text().trim();
