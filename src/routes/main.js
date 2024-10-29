@@ -26,7 +26,6 @@ module.exports = function (app, boaData) {
       "ABSORBING ARCANE MYSTERIES",
       "BINDING THE POWER OF DOOM",
       "READING THE LATVERIAN CODEX",
-      "CHANNELING DOOM'S WISDOM",
       "INVOKING THE WILL OF DOOM",
     ];
 
@@ -42,10 +41,10 @@ module.exports = function (app, boaData) {
   });
 
   // When the user enters a title search query we will process it here
-  app.post("/api/submit-title-search", async (req, res) => {
+  app.post("/submit-title-search", async (req, res) => {
     try {
-      // Access the query from the request body and ensure it's a valid length and does not contain any special HTML character
-      const searchQuery = req.body.searchText;
+      // Use express sanitizer to clean up the search query for anything malicious
+      const searchQuery = req.sanitize(req.body.searchText);
       console.log("Received search query:", searchQuery);
 
       // Server-side validation to ensure the search query is not empty
@@ -58,18 +57,21 @@ module.exports = function (app, boaData) {
       console.time("BOM_API.searchForTitles");
       const searchResult = await BOM_API.searchForTitles(searchQuery);
       console.timeEnd("BOM_API.searchForTitles");
+      
       // TODO HANDLE WHEN THERE ARE NO SEARCH RESULTS - CURRENTLY CRASHES THE SERVER AND LEAVES CLIENT IN LOADING SCREEN
       console.time("BOM_API.createBoxOfficeBreakdownForTitle");
       var firstMovieFromResult = await BOM_API.createBoxOfficeBreakdownForTitle(
         searchResult[0].movieId
       );
       console.timeEnd("BOM_API.createBoxOfficeBreakdownForTitle");
+
       // Get the poster image for the movie
-      console.time("BOM_API.getTitlePosterImageSrc");
+      console.time("BOM_API.setMovieImgSrc");
       firstMovieFromResult.setMovieImgSrc(
         await BOM_API.getTitlePosterImageSrc(firstMovieFromResult.getTtID())
       );
-      console.timeEnd("BOM_API.getTitlePosterImageSrc");
+      console.timeEnd("BOM_API.setMovieImgSrc");
+
       // Get the average color of the poster image
       await firstMovieFromResult.setAveragePixelColorFromPoster();
       var geo = {};
@@ -94,11 +96,9 @@ module.exports = function (app, boaData) {
     }
   });
 
-  app.get("/api/fetch-data", async (req, res) => {
+  // When the DOM is loaded we can fetch some data if needed (most likely like a random movie from the year as a suggestion)
+  app.get("/fetch-landing-data", async (req, res) => {
     try {
-      // Perform the API calls to grab movies, choose a movie, source the images, get a color average and find the country grosses before
-      // submitting to the front end
-
       res.json({
         success: true,
         message: "All API calls complete! GOOD TO GO!",
@@ -108,5 +108,34 @@ module.exports = function (app, boaData) {
       console.error("Error in API calls:", error);
       res.status(500).json({ success: false, message: "API call failed" });
     }
+  });
+
+  // BOA API PROVISION
+
+  app.get("/api/BOA/findTitles", async (req, res) => {
+    // Use express sanitizer to clean up the search query for anything malicious
+    const searchQuery = req.sanitize(req.query.searchQuery);
+
+    const searchResult = await BOM_API.searchForTitles(searchQuery);
+    // Server-side validation to ensure the search query is not empty
+    if (searchResult.length == 0) {
+      res.json({
+        success: false,
+        message: "No search results found :(",
+      });
+    }
+
+    // Get the movie IDs from the search results
+    var movieList = [];
+    for(var i = 0; i < searchResult.length; i++) {
+      var movie =  searchResult[i].movieId;
+      movieList.push(movie);
+    }
+
+    res.json({
+      success: true,
+      message: "Search is clean & all API calls complete! GOOD TO GO!",
+      titleIDs: movieList,
+    });
   });
 };

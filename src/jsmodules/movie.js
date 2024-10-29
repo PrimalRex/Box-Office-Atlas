@@ -3,7 +3,7 @@ const getPixels = require("get-pixels");
 
 // Some performance charts are different on the website so we need to identify and handle them differently
 const performanceChartCategories = Object.freeze({
-  // Cat 1 refers to movies that have only 1 round of box office performance and therefore a simple DOM to read from
+  // Cat 1 refers to movies that have only 1 round of box office performance and therefore a simpler DOM to read from
   Cat1: 1,
   // Cat 2 refers to movies that have multiple rounds of box office performance and therefore a more complex DOM to read from
   // they share similar table structures but need their own extraction process
@@ -218,6 +218,7 @@ class Movie {
     return { country: secondhighestGrossCountry, gross: secondhighestGross };
   }
 
+  // Analyses a portion of the movie poster and returns a dominnant color
   setAveragePixelColorFromPoster = async () => {
     const getPixelsAsync = (src) => {
       return new Promise((resolve, reject) => {

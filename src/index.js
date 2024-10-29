@@ -1,8 +1,9 @@
 // Import the modules we need
 var express = require("express");
-var ejs = require("ejs");
 var mysql = require("mysql");
 var session = require("express-session");
+require("ejs");
+require('express-sanitizer');
 // Hide away all API keys in here
 require("dotenv").config();
 
@@ -28,6 +29,9 @@ app.use(express.static(__dirname + "/public"));
 // Set up body parser
 app.use(express.json());
 
+// Santise inputs
+app.use(expressSanitizer());
+
 // Set the directory where Express will pick up HTML files
 // __dirname will get the current directory
 app.set("views", __dirname + "/views");
@@ -39,7 +43,7 @@ app.set("view engine", "ejs");
 // We want to use EJS's rendering engine
 app.engine("html", ejs.renderFile);
 
-// Define our data
+// Define our data - passing mapbox api key for now
 var boaData = [MAPBOX_API_KEY];
 
 // Requires the main.js file inside the routes folder passing in the Express app and data as arguments.  All the routes will go in this file
