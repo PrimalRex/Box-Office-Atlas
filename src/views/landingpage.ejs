@@ -68,22 +68,23 @@
 
   <div id="left-panel">
     <div id="movie-details">
-        <h1 id="movie-title">SELECT A MOVIE</h1>
-        <p><span id="movie-subbox">//////////</span></p>
-        <img id="movie-poster" src="/images/BOAIconTransparent.png" alt="Movie Poster">
+        <h1 id="movie-title">FIND A TITLE</h1>
+        <p><span id="movie-subbox">NO INFORMATION</span></p>
+        <img id="movie-poster" src="/images/BOAPoster.jpg" alt="Promo Poster">
         <p id="movie-summary">BOA can extract out any and all movie summaries! Need to know more about a film you're looking at? You've found the
-            right panel!
+            right panel! <BR><BR>Select any film / title from the top search bar.</BR>
+            <BR>Log in / Register at the top right to save your films!</BR>
         </p>
         <table id="movie-info-table">
             <tr>
                 <td><strong>DISTR.</strong></td>
                 <td><strong>&nbsp;::&nbsp;</strong></td>
-                <td id="movie-distributor"> WAITING... </td>
+                <td id="movie-distributor"> HARRIS BARRA </td>
             </tr>
             <tr>
                 <td><strong>GENRE(S)</strong></td>
                 <td><strong>&nbsp;::&nbsp;</strong></td>
-                <td id="movie-genre"> WAITING... </td>
+                <td id="movie-genre"> ACTION, ACTION, MAYBE ACTION </td>
             </tr>
         </table>
         
@@ -105,7 +106,7 @@
             </tr>
         </table>
 
-        <table id="grosses-table">
+        <table id="save-movie">
             <tr>
                 <th>SAVE MOVIE</th>
             </tr>
@@ -169,9 +170,14 @@
                     setTimeout(() => {
                         overlay.classList.add('fade-out');
                         updateMarkerOpacity();
+
+                        var saveBtn = document.getElementById("save-movie");
+                        saveBtn.classList.add('visible');
+                        var grossesTable = document.getElementById("grosses-table");
+                        grossesTable.classList.add('visible');
+
                         overlay.addEventListener('transitionend', () => {
                             overlay.style.display = 'none';
-                            updateMarkerOpacity();
                         });
                     }, 200);
                 } else {
@@ -198,13 +204,17 @@
                 //var boaData = data.boaData;
 
                 // Grab the loading overlay and update the message
-                loadingMessage = document.getElementById('loading-message');
+                var loadingMessage = document.getElementById('loading-message');
                 loadingMessage.innerText = "COOLING THE AFTERBURNERS...";
 
-                // Empty markers array and update the landing page with the new movie data
-                clearMarkersAndLayers(markers, map);
-
-                updateLandingPageWithMovieData(data);
+                // Add event listeners to show/hide the top nav bar on hover
+                document.getElementById("top-nav-bar").addEventListener("mouseenter", () => {
+                    document.getElementById("top-nav-bar").classList.add("visible");
+                    isMouseOverTopNavBar = true;
+                });
+                document.getElementById("top-nav-bar").addEventListener("mouseleave", () => {
+                    isMouseOverTopNavBar = false;
+                });
 
                 // Fade out the loading overlay now that we've done all jobs
                 const overlay = document.getElementById('loading-overlay');
@@ -233,6 +243,9 @@
     // Listen for changes in camera position
     map.on('move', () => {
         updateMarkerOpacity();
+        if(map.getZoom() >= 2.5 && !isMouseOverTopNavBar){
+            document.getElementById('top-nav-bar').classList.remove('visible');
+        }
     });
 
     // Listen for changes in zoom level so we can update the nav bar visibility

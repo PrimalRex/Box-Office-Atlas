@@ -55,13 +55,22 @@ module.exports = function (app, boaData) {
       }
 
       // Perform the API calls to grab movies, choose a movie, source the images, get a color average and find the country grosses
+      console.time("BOM_API.searchForTitles");
       const searchResult = await BOM_API.searchForTitles(searchQuery);
+      console.timeEnd("BOM_API.searchForTitles");
+      // TODO HANDLE WHEN THERE ARE NO SEARCH RESULTS - CURRENTLY CRASHES THE SERVER AND LEAVES CLIENT IN LOADING SCREEN
+      console.time("BOM_API.createBoxOfficeBreakdownForTitle");
       var firstMovieFromResult = await BOM_API.createBoxOfficeBreakdownForTitle(
         searchResult[0].movieId
       );
+      console.timeEnd("BOM_API.createBoxOfficeBreakdownForTitle");
+      // Get the poster image for the movie
+      console.time("BOM_API.getTitlePosterImageSrc");
       firstMovieFromResult.setMovieImgSrc(
         await BOM_API.getTitlePosterImageSrc(firstMovieFromResult.getTtID())
       );
+      console.timeEnd("BOM_API.getTitlePosterImageSrc");
+      // Get the average color of the poster image
       await firstMovieFromResult.setAveragePixelColorFromPoster();
       var geo = {};
       if (firstMovieFromResult.getCountryGrossesAsAlpha().length != 0) {
@@ -89,29 +98,11 @@ module.exports = function (app, boaData) {
     try {
       // Perform the API calls to grab movies, choose a movie, source the images, get a color average and find the country grosses before
       // submitting to the front end
-      const test1 = await BOM_API.searchForTitles("jurassic world park");
-      var testMovie = await BOM_API.createBoxOfficeBreakdownForTitle(
-        test1[Math.floor(Math.random() * Math.min(test1.length, 3))].movieId
-      );
-      testMovie.setMovieImgSrc(
-        await BOM_API.getTitlePosterImageSrc(testMovie.getTtID())
-      );
-      await testMovie.setAveragePixelColorFromPoster();
-      var geo = {};
-      if (testMovie.getCountryGrossesAsAlpha().length != 0) {
-        geo = await WORLD_GEO_JSON_MODULE.createGeoDataInfoFromAlpha(
-          testMovie.getCountryGrossesAsAlpha()
-        );
-        //console.log(geo);
-      }
-      console.log(testMovie);
 
       res.json({
         success: true,
         message: "All API calls complete! GOOD TO GO!",
         boaData,
-        movie: testMovie,
-        geoData: geo,
       });
     } catch (error) {
       console.error("Error in API calls:", error);

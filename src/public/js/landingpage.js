@@ -113,7 +113,7 @@ function updateLandingPageWithMovieData(data) {
     map.addSource(sourceId, {
       type: "geojson",
       data: data,
-      tolerance: 1,
+      tolerance: .5,
       buffer: 64,
     });
 
@@ -194,15 +194,6 @@ function updateLandingPageWithMovieData(data) {
 
     markers.push(marker);
   }
-
-  // Add event listeners to show/hide the top nav bar on hover
-  document.getElementById("top-nav-bar").addEventListener("mouseenter", () => {
-    document.getElementById("top-nav-bar").classList.add("visible");
-    isMouseOverTopNavBar = true;
-  });
-  document.getElementById("top-nav-bar").addEventListener("mouseleave", () => {
-    isMouseOverTopNavBar = false;
-  });
 }
 
 function clearMarkersAndLayers(markers, map) {

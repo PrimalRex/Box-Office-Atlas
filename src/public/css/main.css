@@ -44,7 +44,7 @@ body {
     color: white;
     opacity: 1;
     visibility: visible;
-    transition: opacity 1.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+    transition: opacity .75s cubic-bezier(0.075, 0.82, 0.165, 1);
     font: 1.5em 'HelveticaNow_Bold', sans-serif;
     font-style: italic;
 }
@@ -271,7 +271,7 @@ p {
 
 
 /* Grosses Table */
-#grosses-table {
+#grosses-table, #save-movie {
     width: 100%;
     margin-top: 20px;
     border-collapse: collapse;
@@ -282,22 +282,32 @@ p {
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 1s cubic-bezier(0.455, 0.03, 0.515, 0.955);
 }
 
-#grosses-table th, #grosses-table td {
+#save-movie.visible {
+    opacity: 1;
+}
+
+#grosses-table.visible {
+    opacity: 1;
+}
+
+#grosses-table th, #grosses-table td, #save-movie th, #save-movie td {
     padding: 12px;
     text-align: center;
 }
 
-#grosses-table th {
+#grosses-table th, #save-movie th {
     font-family: 'AvenirNext-Bold', sans-serif;
     font-size: .9em; 
     font-weight: bold;
     background-color: hsl(240, 4%, 20%);
 }
 
-#grosses-table td {
+#grosses-table td, #save-movie td {
     font-family: 'AvenirNext-Bold', sans-serif;
     font-size: 1.2em;
 }
