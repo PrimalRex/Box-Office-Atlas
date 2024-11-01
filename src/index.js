@@ -2,8 +2,8 @@
 var express = require("express");
 var mysql = require("mysql");
 var session = require("express-session");
-require("ejs");
-require('express-sanitizer');
+var ejs = require("ejs");
+var expressSanitizer = require('express-sanitizer');
 // Hide away all API keys in here
 require("dotenv").config();
 

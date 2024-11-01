@@ -35,7 +35,7 @@ git clone https://github.com/PrimalRex/Box-Office-Atlas.git
 
 Install Node Dependencies & Packages.
 ```
-npm init -y
+npm install
 ```
 
 Remove the 'template' prefix ```template.env``` on the environment config and fill with valid API Keys. It is important these are valid as the app will not execute without them.
