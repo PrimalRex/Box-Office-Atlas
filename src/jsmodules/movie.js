@@ -119,8 +119,11 @@ class Movie {
             this.getMovieFinancials().worldwideGross.replace(/[^0-9]/g, "")
           )) *
         100;
-      // Round to 2 decimal places because we dont need an extreme amount of precision
-      grossPercentage = Math.round(grossPercentage * 100) / 100;
+      // Round to 2 decimal places because we dont need an extreme amount of precision.
+      // In some cases we may round to 3dp because the gross of the country is too insignificant
+      grossPercentage = Math.round(grossPercentage * 100) / 100 == 0 ? 
+      Math.round(grossPercentage * 1000) / 1000 : Math.round(grossPercentage * 100) / 100;
+  
       // Convert the value into a normalized alpha of 0.3-1 where 0.3 is lowestGrossing and 1 is highestGrossing number
       value =
         ((value - lowestGross) / (averageGross - lowestGross)) * (1 - 0.3) +
