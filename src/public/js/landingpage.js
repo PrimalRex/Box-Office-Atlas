@@ -114,7 +114,7 @@ function updateLandingPageWithMovieData(data) {
       type: "geojson",
       data: data,
       tolerance: .5,
-      buffer: 64,
+      buffer: 0,
     });
 
     // Add a fill layer for the country outline
