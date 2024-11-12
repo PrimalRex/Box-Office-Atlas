@@ -112,9 +112,13 @@ module.exports = function (app, boaData) {
 
   // BOA API PROVISION
 
+  // Route to get the ttIDs of movies that might match the search query
+  // EXAMPLE: /api/BOA/findTitles?searchQuery="the dark knight"
+  // -------------------------------------------------
   app.get("/api/BOA/findTitles", async (req, res) => {
     // Use express sanitizer to clean up the search query for anything malicious
     const searchQuery = req.sanitize(req.query.searchQuery);
+    console.log("Received search query:", searchQuery);
 
     const searchResult = await BOM_API.searchForTitles(searchQuery);
     // Server-side validation to ensure the search query is not empty
