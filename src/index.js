@@ -9,7 +9,6 @@ require("dotenv").config();
 
 // Ensure you have  '.env' file in the root directory with valid tokens for the following:
 const MAPBOX_API_KEY = process.env.MAPBOX_API_KEY;
-const THE_ONE_API_KEY = process.env.THE_ONE_API_BEARER_TOKEN;
 
 // Create the express application object
 const app = express();
@@ -22,6 +21,23 @@ app.use(
 );
 
 const port = 8000;
+
+// Define the database connection
+const db = mysql.createConnection ({
+  host: 'localhost',
+  user: 'boaAdmin',
+  password: 'boagenericpass',
+  database: 'boaDB'
+});
+// Connect to the database
+db.connect((err) => {
+  if (err) {
+      console.log('Error connecting to BOA database');
+      throw err;
+  }
+  console.log('Connected to BOA database successfully!');
+});
+global.db = db;
 
 // Set up css
 app.use(express.static(__dirname + "/public"));

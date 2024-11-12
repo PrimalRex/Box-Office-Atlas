@@ -8,7 +8,6 @@ const WORLD_GEO_JSON_MODULE = {
   // anywhere from 30-100 json files at runtime is slow and inefficient.
   // NOTE: [The current json files cover most countries and regions for most blockbusters from the last decade]
   grabMissingGeoData: async function (countryCode) {
-    //const URL = `https://simplemaps.com/static/svg/country/${countryCode.toLowerCase()}/admin1/${countryCode.toLowerCase()}.json`;
     const URL = `https://simplemaps.com/static/svg/country/${countryCode.toLowerCase()}/all/${countryCode.toLowerCase()}.json`;
     const response = await fetch(URL);
     const geoJSON = await response.text();
