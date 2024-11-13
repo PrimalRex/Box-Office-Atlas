@@ -9,6 +9,9 @@ require("dotenv").config();
 
 // Ensure you have  '.env' file in the root directory with valid tokens for the following:
 const MAPBOX_API_KEY = process.env.MAPBOX_API_KEY;
+const DB_NAME = process.env.DB_NAME;
+const DB_USER = process.env.DB_USER;
+const DB_PASSWORD = process.env.DB_PASSWORD;
 
 // Create the express application object
 const app = express();
@@ -20,15 +23,17 @@ app.use(
   })
 );
 
+// Define the port number
 const port = 8000;
 
 // Define the database connection
 const db = mysql.createConnection ({
   host: 'localhost',
-  user: 'boaAdmin',
-  password: 'boagenericpass',
-  database: 'boaDB'
+  user: DB_USER,
+  password: DB_PASSWORD,
+  database: DB_NAME
 });
+
 // Connect to the database
 db.connect((err) => {
   if (err) {
@@ -47,6 +52,9 @@ app.use(express.json());
 
 // Santise inputs
 app.use(expressSanitizer());
+
+// Data from forms can be passed with url encoding
+app.use(express.urlencoded({ extended: true }));
 
 // Set the directory where Express will pick up HTML files
 // __dirname will get the current directory

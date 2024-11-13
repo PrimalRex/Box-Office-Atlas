@@ -7,11 +7,32 @@ const LOTRQUOTES_API = require("../apimodules/LOTRquotes");
 module.exports = function (app, boaData) {
   // Handle our routes
   app.get("/", async (req, res) => {
-    // Saving UserID to Session
-    if (req.session && req.session.userId) {
-      //forumData.forumUsername = req.session.forumUsername;
-    }
+    // Check to see if we are logged in
+    if (req.session && req.session.loggedIn) {
+      res.redirect("/home");
+    } else {
+      res.redirect("/login");
+    };
+  });
 
+  app.get("/login", async (req, res) => {
+    res.render("login.ejs");
+  });
+
+  app.post("/post-login", async (req, res) => {
+    // Check to see if we are logged in and if so we redirect back to the root which will redirect to home
+    const user = req.sanitize(req.body.username);
+    const pass = req.sanitize(req.body.password);
+    //console.log(user + pass);
+    if (user === "admin" && pass === "password") {
+      req.session.loggedIn = true;
+      res.redirect("/");
+    } else {
+      res.redirect("/login");
+    };
+  });
+
+  app.get("/home", async (req, res) => {
     // Queue up a quote from the LOTR API to show on the loading screen
     const quote = await LOTRQUOTES_API.getQuote();
     //console.log(quote);

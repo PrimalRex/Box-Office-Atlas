@@ -38,11 +38,11 @@ Install Node Dependencies & Packages.
 npm install
 ```
 
-Remove the 'template' prefix ```template.env``` on the environment config and fill with valid API Keys. It is important these are valid as the app will not execute without them.
+Duplicate the ```template.env``` file and remove the 'template' prefix. Fill with valid Keys & Passwords. It is important these are valid as the app will not execute without them.
 
-Execute all SQL files in the ```db``` directory to ensure the app can properly communicate to the Database backend.
+Execute all the SQL commands in the ```db``` directory to ensure the app can properly communicate to the Database backend.
 
-(OPTIONAL) Launch a local instance of the app to verify that everything has been setup properly.
+Launch a local instance of the app to verify that everything has been setup properly.
 ```
 node index.js
 ```
