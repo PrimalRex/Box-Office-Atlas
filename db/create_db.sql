@@ -6,7 +6,8 @@ use boaDB;
 CREATE TABLE Users (
     userId INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) UNIQUE NOT NULL,
-    passwordEncrypt VARCHAR(255) NOT NULL
+    passwordEncrypt VARCHAR(255) NOT NULL,
+    passwordSalt VARCHAR(255) NOT NULL
 );
 
 -- Create Movies table
@@ -25,6 +26,7 @@ CREATE TABLE UserFavorites (
     favouriteId INT PRIMARY KEY AUTO_INCREMENT,
     userId INT NOT NULL,
     movieId INT NOT NULL,
+    count INT,
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE,
     FOREIGN KEY (movieId) REFERENCES Movies(movieId) ON DELETE CASCADE
 );

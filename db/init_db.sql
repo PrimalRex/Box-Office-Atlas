@@ -1,3 +1,6 @@
+-- Update your DB Environmental variables according to your DB setup
+-- 'boaAdmin' = DB_USER, 'boagenericpass' = DB_PASS, boaDB = DB_NAME
+
 -- Create the database if it doesn't exist
 DROP DATABASE IF EXISTS boaDB;
 CREATE DATABASE boaDB;

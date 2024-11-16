@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
@@ -20,6 +21,5 @@
     "mysql": "^2.18.1",
     "node-fetch": "^3.3.2",
     "session": "^0.1.0"
-  },
-  "devDependencies": {}
+  }
 }

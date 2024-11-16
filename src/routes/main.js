@@ -1,3 +1,5 @@
+// Packages
+const bcrypt = require("bcrypt");
 // APIs & Modules
 const BOM_API = require("../apimodules/BOM");
 const COUNTRY_MODULE = require("../jsmodules/countries");
@@ -7,7 +9,7 @@ const LOTRQUOTES_API = require("../apimodules/LOTRquotes");
 module.exports = function (app, boaData) {
   // Handle our routes
   app.get("/", async (req, res) => {
-    // Check to see if we are logged in
+    // Check to see if we are logged in and if so we redirect back to the root which will redirect to home
     if (req.session && req.session.loggedIn) {
       res.redirect("/home");
     } else {
@@ -20,45 +22,76 @@ module.exports = function (app, boaData) {
   });
 
   app.post("/post-login", async (req, res) => {
-    // Check to see if we are logged in and if so we redirect back to the root which will redirect to home
+    // Sanitize the inputs
     const user = req.sanitize(req.body.username);
-    const pass = req.sanitize(req.body.password);
+    const rawpass = req.sanitize(req.body.password);
     //console.log(user + pass);
-    if (user === "admin" && pass === "password") {
-      req.session.loggedIn = true;
-      res.redirect("/");
-    } else {
-      res.redirect("/login");
-    };
+
+    // Call the stored procedure to get the salt by username
+    const dbquery1 = "CALL getpasswordSaltByUsername(?)";
+    db.query(dbquery1, [user], async function (err, salt) {
+      if (err) {
+        // If we can't find a salt, meaning there is no user, then we redirect back to the login page
+        console.log(err);
+        res.redirect("/login");
+      } else {
+        // Hash the user's entered password with the salt we found from the user
+        const pass = await bcrypt.hash(rawpass, salt[0][0].passwordSalt);
+        // Call the stored procedure to verify the user credentials
+        const dbquery2 = "CALL verifyUserCredentials(?, ?)";
+        db.query(dbquery2, [user, pass], async function (err, result) {
+          if (err) {
+            console.log(err);
+            res.redirect("/login");
+          }
+          //console.log(result);
+          // If the result is not empty then we have a successful login
+          if (result[0].length > 0) {
+            // Set the session variables
+            req.session.loggedIn = true;
+            req.session.user = result[0][0].username;
+            res.redirect("/home");
+          } else {
+            console.log("Failed Credentials");
+            res.redirect("/login");
+          }
+        });
+      }
+    });
   });
 
   app.get("/home", async (req, res) => {
-    // Queue up a quote from the LOTR API to show on the loading screen
-    const quote = await LOTRQUOTES_API.getQuote();
-    //console.log(quote);
+    // Ensure we are logged in before we can access the home page
+    if (!req.session || !req.session.loggedIn) {
+      res.redirect("/login");
+    } else {
+      // Queue up a quote from the LOTR API to show on the loading screen
+      const quote = await LOTRQUOTES_API.getQuote();
+      //console.log(quote);
 
-    // Random loading messages
-    const loadingMessages = [
-      "WARMING UP THE JETS",
-      "ENTERING THE DANGERZONE",
-      "BOARDING THE DARKSTAR",
-      "REACHING MACH 10",
-      "HITTING 9 G'S",
-      "ABSORBING ARCANE MYSTERIES",
-      "BINDING THE POWER OF DOOM",
-      "READING THE LATVERIAN CODEX",
-      "INVOKING THE WILL OF DOOM",
-    ];
+      // Random loading messages
+      const loadingMessages = [
+        "WARMING UP THE JETS",
+        "ENTERING THE DANGERZONE",
+        "BOARDING THE DARKSTAR",
+        "REACHING MACH 10",
+        "HITTING 9 G'S",
+        "ABSORBING ARCANE MYSTERIES",
+        "BINDING THE POWER OF DOOM",
+        "READING THE LATVERIAN CODEX",
+        "INVOKING THE WILL OF DOOM",
+      ];
 
-    const selectedLoadingMessage =
-      loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+      const selectedLoadingMessage =
+        loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
 
-    res.render("landingpage.ejs", {
-      boaData,
-      quote,
-      loadingMessage: selectedLoadingMessage,
-      loadingMessages,
-    });
+      res.render("landingpage.ejs", {
+        boaData,
+        quote,
+        loadingMessage: selectedLoadingMessage,
+        loadingMessages,
+      });
+    }
   });
 
   // When the user enters a title search query we will process it here
