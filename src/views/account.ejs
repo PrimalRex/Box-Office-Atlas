@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>My Account - Box Office Atlas</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/account.css" rel="stylesheet">
+  <link href="/css/login.css" rel="stylesheet">
+  <link href="/css/titles.css" rel="stylesheet">
+  <link href="/css/loaders.css" rel="stylesheet">
+</head>
+<body>
+  <div class="login-container">
+    <h2>ACCOUNT - <%= user %></h2>
+    <div id="account-container">
+      <a id=submit href="/logout">LOG OUT</a>
+    </div>
+    <h2>SAVED FILMS</h2>
+    <div id="titles-container">
+      <form id="title-form" action="/home" method="get">
+        <div id="title-container">
+          <button type="submit" name="ttID" value="home">FIND MORE TITLES!</button>
+          <img id="movie-small-poster" src="/images/BOAPoster.jpg" alt="Promo Poster">
+        </div>
+      </form>
+      <form id="title-form" action="/home" method="get">
+        <div id="title-container">
+          <button type="submit" name="ttID" value="tt5034838">GODZILLA X KONG: THE NEW EMPIRE</button>
+          <img id="movie-small-poster" src="https://m.media-amazon.com/images/M/MV5BMTY0N2MzODctY2ExYy00OWYxLTkyNDItMTVhZGIxZjliZjU5XkEyXkFqcGc@._V1_UX392_CR0,0,392,580_.jpg" alt="Promo Poster">
+        </div>
+      </form>
+      <form id="title-form" action="/home" method="get">
+        <div id="title-container">
+          <button type="submit" name="ttID" value="tt14539740">GODZILLA X KONG: THE NEW EMPIRE</button>
+          <img id="movie-small-poster" src="https://m.media-amazon.com/images/M/MV5BMTY0N2MzODctY2ExYy00OWYxLTkyNDItMTVhZGIxZjliZjU5XkEyXkFqcGc@._V1_UX392_CR0,0,392,580_.jpg" alt="Promo Poster">
+        </div>
+      </form>
+  </div>
+</body>
+</html>

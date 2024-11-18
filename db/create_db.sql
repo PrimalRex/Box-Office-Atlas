@@ -17,7 +17,7 @@ CREATE TABLE Movies (
     title VARCHAR(100) NOT NULL,
     ttID VARCHAR(10) NOT NULL,
     imageUrl VARCHAR(255) NOT NULL,
-    releaseYear INT
+    releaseYear INT NOT NULL
 );
 
 -- Create UserFavorites table
@@ -26,7 +26,6 @@ CREATE TABLE UserFavorites (
     favouriteId INT PRIMARY KEY AUTO_INCREMENT,
     userId INT NOT NULL,
     movieId INT NOT NULL,
-    count INT,
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE,
     FOREIGN KEY (movieId) REFERENCES Movies(movieId) ON DELETE CASCADE
 );

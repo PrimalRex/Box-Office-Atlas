@@ -46,6 +46,10 @@ class Movie {
     return this.ttID;
   }
 
+  getReleaseYear(){
+    return this.movieDetails.earliestReleaseDate.split(" ")[2];
+  }
+
   setMovieTitle(title) {
     this.title = title;
   }

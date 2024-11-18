@@ -207,6 +207,7 @@ p {
     font-size: 1em;
     margin-bottom: 12px;
     line-height: 1.5;
+    color:white;
 }
 
 #movie-subbox, #movie-summary {
@@ -224,6 +225,7 @@ p {
 
     font-family: 'AvenirNext-Bold', sans-serif;
     font-size: .9em;
+    color: white;
 }
 
 #movie-info-table {
@@ -283,11 +285,26 @@ p {
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     opacity: 0;
-    transition: opacity 1s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+    transition: background-color .3s, opacity .3s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+}
+
+
+#save-movie {
+    cursor: pointer;
+    font-family: 'AvenirNext-Bold', sans-serif;
+    font-size: .9em; 
+    font-weight: bold;
+    background-color: hsl(240, 4%, 20%)
+    
 }
 
 #save-movie.visible {
     opacity: 1;
+}
+
+#save-movie:hover {
+    opacity: 1;
+    background-color: hsl(240, 4%, 25%);
 }
 
 #grosses-table.visible {
@@ -299,7 +316,7 @@ p {
     text-align: center;
 }
 
-#grosses-table th, #save-movie th {
+#grosses-table th{
     font-family: 'AvenirNext-Bold', sans-serif;
     font-size: .9em; 
     font-weight: bold;

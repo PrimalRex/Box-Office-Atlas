@@ -1,0 +1,43 @@
+/* Account Page */
+#account-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 300px;
+}
+
+#information-element {
+    width: 90%;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    font-size: .9em; 
+    background: hsla(240, 4%, 20%, 1);
+    font-family: 'AvenirNext-Bold', sans-serif;
+    font-size: .9em; 
+    font-weight: bold;
+    color: white;
+    outline: none;
+}
+
+#submit {
+    width: 90%;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background: hsl(240, 4%, 20%);
+    color: white;
+    font-size: 1em;
+    font-family: 'HelveticaNow_Bold', sans-serif;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+#submit:hover {
+    background: hsl(240, 4%, 25%);
+}

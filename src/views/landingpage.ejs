@@ -58,10 +58,14 @@
             <input type="text" id="search-input" placeholder="Search for Titles">
         </div>
         <div id="user-profile">
-            <img src="/images/UserProfileIcon.png" alt="User Profile">
+            <a href="/account">
+                <img src="/images/UserProfileIcon.png" alt="User Profile">
+            </a>
         </div>
         <div id="boa-logo">
-            <img src="/images/BOAIconTransparent.png" alt="BOA Logo">
+            <a href="/about">
+                <img src="/images/BOAIconTransparent.png" alt="BOA Logo">
+            </a>
         </div>
     </div>
   </div>
@@ -107,9 +111,9 @@
         </table>
 
         <table id="save-movie">
-            <tr>
-                <th>SAVE MOVIE</th>
-            </tr>
+            <a href = "/toggle-save-movie">
+                <th id="save-movie-state">...</th>
+            </a>
         </table>
     </div>
   </div>
@@ -136,14 +140,14 @@
     var isMouseOverTopNavBar = false;
 
     document.getElementById("search-input").addEventListener("keydown", async function(event) {
-    // Check if the Enter key is pressed
-    if (event.key === "Enter") {
-        // Capture the input value and validate that its not empty
-        const searchInput = document.getElementById('search-input');
-        const searchText = event.target.value;
-        searchInput.value = '';
+        // Check if the Enter key is pressed
+        if (event.key === "Enter") {
+            // Capture the input value and validate that its not empty
+            const searchInput = document.getElementById('search-input');
+            const searchText = event.target.value;
+            searchInput.value = '';
 
-        if(searchText.length > 0){
+            if(searchText.length > 0){
                 // Throw up a different message
                 loadingMessage = document.getElementById('loading-message');
                 loadingMessage.innerText = '<%= loadingMessages[Math.floor(Math.random() * loadingMessages.length)] %>';
@@ -190,8 +194,17 @@
     // Once all the elements on the page have loaded we will ask the server to provide us with some data to use
     document.addEventListener("DOMContentLoaded", async function() {
         try {
+            // Throw up a different message
+            loadingMessage = document.getElementById('loading-message');
+            loadingMessage.innerText = '<%= loadingMessages[Math.floor(Math.random() * loadingMessages.length)] %>';
+
+            // Grab the loading overlay and make it visible
+            const overlay = document.getElementById('loading-overlay');
+            overlay.classList.remove('fade-out');
+            overlay.style.display = 'flex';
+
+            // A route to ensure any preliminary data is loaded before the user can interact with the app
             const response = await fetch('/fetch-landing-data');
-            
             if (!response.ok) {
                 // Usually occurs when theres an error in some sort of setup or an unlikely ratelimit from IMDb
                 throw new Error(`Not an OK response from kick-off.... error! status: ${response.status}`);
@@ -200,9 +213,6 @@
             const data = await response.json();
             
             if (data.success) {
-                // Cache this temp data ? not sure what to use it for right now
-                //var boaData = data.boaData;
-
                 // Grab the loading overlay and update the message
                 var loadingMessage = document.getElementById('loading-message');
                 loadingMessage.innerText = "COOLING THE AFTERBURNERS...";
@@ -216,8 +226,35 @@
                     isMouseOverTopNavBar = false;
                 });
 
-                // Fade out the loading overlay now that we've done all jobs
-                const overlay = document.getElementById('loading-overlay');
+                if('<%= ttID %>' != 'home'){
+                    // If we have a ttID in the URL, we will use that to search for a movie
+                    const response = await fetch('/submit-ttID', {
+                        method: 'POST',
+                        body: JSON.stringify({ ttID: '<%= ttID %>' }),
+                        headers: new Headers({ "Content-Type": "application/json" })
+                    });
+
+                    const data = await response.json();
+
+                    if(data.success){
+                        // Clears existing globe info and update the landing page with the new movie data
+                        clearMarkersAndLayers(markers, map);
+                        updateLandingPageWithMovieData(data);
+                        // Updates the 'Save Movie' button to reflect the current state of the movie
+                        getTitleSavedState('<%= ttID %>');
+                        
+                        // Commence fade-out after 200 ms (DOM needs some time to make the changes)
+                        setTimeout(() => {
+                            var saveBtn = document.getElementById("save-movie");
+                            saveBtn.classList.add('visible');
+                            var grossesTable = document.getElementById("grosses-table");
+                            grossesTable.classList.add('visible');
+                        }, 200);
+                    } else {
+                        console.error('Error fetching API data:', data);
+                    }
+                }
+                // If we are entering the homepage without any ttID we can just unfade as per usual
                 // Commence fade-out after 200 ms (DOM needs some time to make the changes)
                 setTimeout(() => {
                     overlay.classList.add('fade-out');
@@ -232,6 +269,10 @@
                         // Only when the animation is finished do we allow the users to interact with the app and any other elements
                         overlay.style.display = 'none';
                         updateMarkerOpacity();
+                        // Postload, we can register the movie to be ready to be saved (prevents saving before the user loads everything)
+                        document.getElementById("save-movie").addEventListener("click", async () => {
+                            await toggleTitleSavedState('<%= ttID %>');
+                        });
                     });
                 }, 200);
             }
@@ -253,6 +294,7 @@
         // If we're zooming that means we lost focus on the nav bar so we can safely assume its not hovered
         isMouseOverTopNavBar = false;
     });
+
     map.on('zoomend', () => {
         // Check zoom and also check if nav bar is currently hovered or not
         if(map.getZoom() >= 2.5 && !isMouseOverTopNavBar){

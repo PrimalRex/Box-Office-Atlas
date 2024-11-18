@@ -11,9 +11,9 @@ CREATE PROCEDURE addMovie (
     IN p_releaseYear INT
 )
 BEGIN
-    -- Ensures we are not adding duplicates
+    -- Ensures we are not adding duplicates but is a non fatal signal so it wont crash the app
     IF EXISTS (SELECT 1 FROM Movies WHERE ttID = p_ttID) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Movie already exists!!!';
+        SIGNAL SQLSTATE '01000' SET MESSAGE_TEXT = 'Movie already exists!!!';
     ELSE
         INSERT INTO Movies (title, ttID, imageUrl, releaseYear) VALUES (p_title, p_ttID, p_imageUrl, p_releaseYear);
     END IF;
@@ -28,6 +28,48 @@ BEGIN
 END //
 DELIMITER ;
 
+--- Return a row or null if the input user has favourited a title or not
+DELIMITER //
+CREATE PROCEDURE hasUserFavouritedTitle(
+    IN p_userId INT,
+    IN p_ttId VARCHAR(10)
+)
+BEGIN
+    -- Checks if the user has favorited the movie
+    SELECT * FROM UserFavorites uf INNER JOIN Movies m ON uf.movieId = m.movieId WHERE uf.userId = p_userId AND m.ttID = p_ttId;
+END //
+DELIMITER ;
+
+-- Toggling favourite state of a movie for a user
+DELIMITER //
+CREATE PROCEDURE toggleUserFavourite(
+    IN p_userId INT,
+    IN p_ttId VARCHAR(10),
+    IN p_title VARCHAR(100),
+    IN p_imageUrl VARCHAR(255),
+    IN p_releaseYear INT
+)
+BEGIN
+    -- Variable to track the state of the operation
+	DECLARE stateTracker INT;
+    -- Add the movie (Duplicates are verified in its own procedure)
+    CALL addMovie(p_title, p_ttId, p_imageUrl, p_releaseYear);
+    -- Check if the user has it already favourited
+    IF EXISTS (SELECT 1 FROM UserFavorites uf INNER JOIN Movies m ON uf.movieId = m.movieId WHERE uf.userId = p_userId AND m.ttID = p_ttId) THEN
+        -- Remove the current entry if it exists
+        DELETE FROM UserFavorites USING UserFavorites INNER JOIN Movies ON UserFavorites.movieId = Movies.movieId WHERE UserFavorites.userId = p_userId AND Movies.ttID = p_ttId;
+		SET stateTracker = 0;
+    ELSE
+        -- If it doesn't exist, add the favorite
+        INSERT INTO UserFavorites (userId, movieId) SELECT p_userId, movieId FROM Movies WHERE ttID = p_ttId;
+		SET stateTracker = 1;
+    END IF;
+    -- Return the state reflecting the removal or addition of the title from userfavourties
+    SELECT stateTracker AS state;
+END //
+DELIMITER ;
+
+
 
 -- Adding Users
 DELIMITER //
@@ -37,7 +79,7 @@ CREATE PROCEDURE addUser (
     IN p_passwordSalt VARCHAR(255)
 )
 BEGIN
-    -- Ensures we are not adding duplicates
+    -- Ensures we are not adding duplicates, fatal signal so it will fully cancel execution
     IF EXISTS (SELECT 1  FROM Users WHERE username = p_username) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Username already exists';
     ELSE

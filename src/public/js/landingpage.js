@@ -113,7 +113,7 @@ function updateLandingPageWithMovieData(data) {
     map.addSource(sourceId, {
       type: "geojson",
       data: data,
-      tolerance: .5,
+      tolerance: 0.5,
       buffer: 0,
     });
 
@@ -215,5 +215,44 @@ function clearMarkersAndLayers(markers, map) {
         map.removeSource(sourceId);
       }
     });
+  }
+}
+
+// Function to update the text of the save button based on the current state
+function updateTitleSavedText(state) {
+  const savedMovie = document.getElementById("save-movie-state");
+  savedMovie.textContent = state ? "UNFAVOURITE" : "SAVE TO FAVOURITES";
+}
+
+// Function to update the frontend with the saved-state of the selected title
+async function getTitleSavedState(ttID) {
+  const response = await fetch("/get-save-movie-state", {
+    method: "POST",
+    body: JSON.stringify({ ttID }),
+    headers: new Headers({ "Content-Type": "application/json" }),
+  });
+  const data = await response.json();
+  if (data.success) {
+    //console.log(data);
+    updateTitleSavedText(data.state);
+  } else {
+    console.error("Error fetching saved state:", data);
+  }
+}
+
+// Function to update the backend with the flipped current state of the title
+async function toggleTitleSavedState(ttID) {
+  //console.log(ttID);
+  const response = await fetch("/toggle-save-movie", {
+    method: "POST",
+    body: JSON.stringify({ ttID }),
+    headers: new Headers({ "Content-Type": "application/json" }),
+  });
+  const data = await response.json();
+  if (data.success) {
+    //console.log(data);
+    updateTitleSavedText(data.state);
+  } else {
+    console.error("Error updating saved state:", data);
   }
 }
