@@ -44,28 +44,23 @@ FROM
 END / / DELIMITER;
 
 -- Get all favourites by userId
-DELIMITER //
-CREATE PROCEDURE getUserFavouritesByUserId(
-    IN p_userId INT
-)
-BEGIN
-    -- Retrieves relevant information about each movie favorited by the user
-    SELECT
-        m.title,
-        m.ttID,
-        m.imageUrl,
-        m.releaseYear
-    FROM 
-        UserFavourites uf
-    INNER JOIN 
-        Movies m ON uf.movieId = m.movieId
-    WHERE 
-        uf.userId = p_userId
+DELIMITER / / CREATE PROCEDURE getUserFavouritesByUserId (IN p_userId INT) BEGIN
+-- Retrieves relevant information about each movie favorited by the user
+SELECT
+    m.title,
+    m.ttID,
+    m.imageUrl,
+    m.releaseYear
+FROM
+    UserFavourites uf
+    INNER JOIN Movies m ON uf.movieId = m.movieId
+WHERE
+    uf.userId = p_userId
     -- Ensures that it matches the order in which the user has saved the titles in 
-    ORDER BY
-        uf.favouriteId;
-END //
-DELIMITER ;
+ORDER BY
+    uf.favouriteId;
+
+END / / DELIMITER;
 
 --- Return a row or null if the input user has favourited a title or not
 DELIMITER / / CREATE PROCEDURE hasUserFavouritedTitle (IN p_userId INT, IN p_ttId VARCHAR(10)) BEGIN
