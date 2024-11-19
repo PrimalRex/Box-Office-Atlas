@@ -2,7 +2,8 @@
 use boaDB;
 
 -- Adding Movies
-DELIMITER / / CREATE PROCEDURE addMovie (
+DELIMITER // 
+CREATE PROCEDURE addMovie (
     IN p_title VARCHAR(100),
     IN p_ttID VARCHAR(10),
     IN p_imageUrl VARCHAR(255),
@@ -28,10 +29,12 @@ VALUES
 
 END IF;
 
-END / / DELIMITER;
+END //
+DELIMITER ;
 
 -- Getting all Movies
-DELIMITER / / CREATE PROCEDURE getAllMovies () BEGIN
+DELIMITER //
+CREATE PROCEDURE getAllMovies () BEGIN
 SELECT
     movieId,
     title,
@@ -41,10 +44,12 @@ SELECT
 FROM
     Movies;
 
-END / / DELIMITER;
+END //
+DELIMITER ;
 
 -- Get all favourites by userId
-DELIMITER / / CREATE PROCEDURE getUserFavouritesByUserId (IN p_userId INT) BEGIN
+DELIMITER //
+CREATE PROCEDURE getUserFavouritesByUserId (IN p_userId INT) BEGIN
 -- Retrieves relevant information about each movie favorited by the user
 SELECT
     m.title,
@@ -60,10 +65,12 @@ WHERE
 ORDER BY
     uf.favouriteId;
 
-END / / DELIMITER;
+END // 
+DELIMITER ;
 
 --- Return a row or null if the input user has favourited a title or not
-DELIMITER / / CREATE PROCEDURE hasUserFavouritedTitle (IN p_userId INT, IN p_ttId VARCHAR(10)) BEGIN
+DELIMITER //
+CREATE PROCEDURE hasUserFavouritedTitle (IN p_userId INT, IN p_ttId VARCHAR(10)) BEGIN
 -- Checks if the user has favorited the movie
 SELECT
     *
@@ -74,10 +81,12 @@ WHERE
     uf.userId = p_userId
     AND m.ttID = p_ttId;
 
-END / / DELIMITER;
+END //
+DELIMITER ;
 
 -- Toggling favourite state of a movie for a user
-DELIMITER / / CREATE PROCEDURE toggleUserFavourite (
+DELIMITER //
+CREATE PROCEDURE toggleUserFavourite (
     IN p_userId INT,
     IN p_ttId VARCHAR(10),
     IN p_title VARCHAR(100),
@@ -132,10 +141,12 @@ END IF;
 SELECT
     stateTracker AS state;
 
-END / / DELIMITER;
+END //
+DELIMITER ;
 
 -- Adding Users
-DELIMITER / / CREATE PROCEDURE addUser (
+DELIMITER //
+CREATE PROCEDURE addUser (
     IN p_username VARCHAR(50),
     IN p_passwordEncrypt VARCHAR(255),
     IN p_passwordSalt VARCHAR(255)
@@ -160,10 +171,12 @@ VALUES
 
 END IF;
 
-END / / DELIMITER;
+END //
+DELIMITER ;
 
 -- Getting userId by username
-DELIMITER / / CREATE PROCEDURE getUserIdByUsername (IN p_username VARCHAR(50)) BEGIN
+DELIMITER //
+CREATE PROCEDURE getUserIdByUsername (IN p_username VARCHAR(50)) BEGIN
 SELECT
     userId
 FROM
@@ -171,10 +184,12 @@ FROM
 WHERE
     username = p_username;
 
-END / / DELIMITER;
+END //
+DELIMITER ;
 
 -- Verifying User Credentials
-DELIMITER / / CREATE PROCEDURE verifyUserCredentials (
+DELIMITER //
+CREATE PROCEDURE verifyUserCredentials (
     IN p_username VARCHAR(50),
     IN p_password VARCHAR(255)
 ) BEGIN
@@ -187,10 +202,12 @@ WHERE
     username = p_username
     AND passwordEncrypt = p_password;
 
-END / / DELIMITER;
+END //
+DELIMITER ;
 
 -- Getting passwordEncrypt by username
-DELIMITER / / CREATE PROCEDURE getpasswordSaltByUsername (IN p_username VARCHAR(50)) BEGIN
+DELIMITER //
+CREATE PROCEDURE getpasswordSaltByUsername (IN p_username VARCHAR(50)) BEGIN
 SELECT
     passwordSalt
 FROM
@@ -198,4 +215,5 @@ FROM
 WHERE
     username = p_username;
 
-END / / DELIMITER;
+END //
+DELIMITER ;

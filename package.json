@@ -21,5 +21,6 @@
     "mysql": "^2.18.1",
     "node-fetch": "^3.3.2",
     "session": "^0.1.0"
-  }
+  },
+  "devDependencies": {}
 }

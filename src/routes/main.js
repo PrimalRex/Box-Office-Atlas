@@ -52,7 +52,7 @@ module.exports = function (app, boaData) {
                 // We don't need to worry about if there are any items in here as they're not explicitly accessed
                 return res.json({
                   success: true,
-                  favouriteTitles: result[0],
+                  favouriteTitles: result !== undefined ? result[0] : [],
                 });
               }
             );
@@ -130,7 +130,7 @@ module.exports = function (app, boaData) {
       "CALL getpasswordSaltByUsername(?)",
       [user],
       async function (err, salt) {
-        if (err) {
+        if (err || salt[0].length == 0) {
           // If we can't find a salt, meaning there is no user, then we redirect back to the login page
           console.log(err);
           res.redirect("/login");
