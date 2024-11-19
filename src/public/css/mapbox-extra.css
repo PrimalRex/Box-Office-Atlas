@@ -1,0 +1,24 @@
+body {
+    margin : 0;
+    padding: 0;
+}
+
+/* Mapbox will take up the other 67% of the screen to leave space for the movie info */
+#map {
+    position   : absolute;
+    top        : 0;
+    bottom     : 0;
+    width      : 70%;
+    height     : 100vh;
+    margin-left: 30%;
+}
+
+.mapboxgl-ctrl-bottom-right,
+.mapboxgl-ctrl-bottom-left {
+    display: none !important;
+}
+
+.mapboxgl-canvas {
+    mask-image        : linear-gradient(to left, hsl(240, 10%, 8%) 98%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to left, hsl(240, 10%, 8%) 98%, transparent 100%);
+}

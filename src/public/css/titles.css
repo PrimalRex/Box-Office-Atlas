@@ -1,38 +1,43 @@
 /* Title Preview Containers */
 #titles-container {
-    display: flex;
-    flex-direction: row;
-    justify-content:center;
-    align-items: flex-end;
-    width: 100%;
-    max-width: 95%;
-    height: 33%;
+    display        : flex;
+    flex-direction : row;
+    justify-content: flex-start;
+    align-items    : flex-start;
+    max-width      : 95vw;
+    height         : 35%;
+    overflow-x     : auto;
+    overflow-y     : hidden;
+    padding        : 10px;
+    box-sizing     : border-box;
+    scrollbar-color: hsl(240, 4%, 20%) hsl(240, 8%, 10%);
 }
 
 #title-form {
-    display: flex;
+    display       : flex;
     flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 20vh;
-    padding-left: 10px;
-    padding-right: 10px;
+    align-items   : center;
+    width         : 100%;
+    max-width     : 20vh;
+    padding-left  : 10px;
+    padding-right : 10px;
 }
 
 #title-container {
-    max-width: 20vh;
-    opacity: .5;
+    max-width : 20vh;
+    min-width : 20vh;
+    opacity   : .5;
     transition: opacity .3s cubic-bezier(0.455, 0.03, 0.515, 0.955);
 }
 
-#title-container:hover{
+#title-container:hover {
     opacity: 1;
 }
 
 #movie-small-poster {
-    max-width: 16vh; 
-    height: auto;
-    margin: 20px 0 5px 0; 
-    border-radius: 10px; 
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
+    max-width    : 16vh;
+    height       : auto;
+    margin       : 20px 0 5px 0;
+    border-radius: 10px;
+    box-shadow   : 0 4px 15px rgba(0, 0, 0, 0.3);
 }

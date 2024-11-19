@@ -5,30 +5,11 @@
   <title>Home - Box Office Atlas</title>
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
   <link href="/css/mapbox-gl.css" rel="stylesheet">
+  <link href="/css/mapbox-extra.css" rel="stylesheet">
   <link href="/css/main.css" rel="stylesheet">
   <link href="/css/loaders.css" rel="stylesheet">
   <script src="/js/mapbox-gl.js"></script>
   <script src="/js/landingpage.js" type="text/javascript"></script> 
-  <style>
-    body { margin: 0; padding: 0; }
-    /* Mapbox will take up the other 67% of the screen to leave space for the movie info */
-    #map { position: absolute;
-         top: 0;
-         bottom: 0;
-         width: 70%;
-         height: 100vh;
-         margin-left: 30%;
-         }
-
-    .mapboxgl-ctrl-bottom-right, .mapboxgl-ctrl-bottom-left {
-      display: none !important;
-    }
-
-    .mapboxgl-canvas{
-        mask-image: linear-gradient(to left, hsl(240, 10%, 8%) 98%, transparent 100%);
-        -webkit-mask-image: linear-gradient(to left, hsl(240, 10%, 8%) 98%, transparent 100%);
-    }
-  </style>
 </head>
 <body>
   <!-- Loading Screen -->
@@ -70,14 +51,15 @@
     </div>
   </div>
 
+  <!-- Title/Film Panel -->
   <div id="left-panel">
     <div id="movie-details">
         <h1 id="movie-title">FIND A TITLE</h1>
         <p><span id="movie-subbox">NO INFORMATION</span></p>
         <img id="movie-poster" src="/images/BOAPoster.jpg" alt="Promo Poster">
-        <p id="movie-summary">BOA can extract out any and all movie summaries! Need to know more about a film you're looking at? You've found the
+        <p id="movie-summary">Need to know more about a film you're looking at? You've found the
             right panel! <BR><BR>Select any film / title from the top search bar.</BR>
-            <BR>Log in / Register at the top right to save your films!</BR>
+            <BR>Account page at the top right to view your saved films!</BR>
         </p>
         <table id="movie-info-table">
             <tr>

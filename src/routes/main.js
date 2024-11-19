@@ -1,6 +1,6 @@
 // Packages
 const bcrypt = require("bcrypt");
-// APIs & Modules
+// APIs & Other Modules
 const BOM_API = require("../apimodules/BOM");
 const COUNTRY_MODULE = require("../jsmodules/countries");
 const WORLD_GEO_JSON_MODULE = require("../jsmodules/worldjson/worldgeojson");
@@ -24,6 +24,44 @@ module.exports = function (app, boaData) {
     } else {
       //res.redirect("/login");
       res.render("account.ejs", { user: "Guest" });
+    }
+  });
+
+  app.get("/get-user-favourites", async (req, res) => {
+    if (!req.session || !req.session.loggedIn) {
+      res.redirect("/login");
+    } else {
+      db.query(
+        "CALL getUserIdByUsername(?)",
+        [req.session.user],
+        async function (err, result) {
+          if (err) {
+            console.log(err);
+            return res.status(500).json({ error: "Error fetching user ID" });
+          }
+          if (result[0].length > 0) {
+            // Call the stored procedure to get the saved state of the movie
+            db.query(
+              "CALL getUserFavouritesByUserId(?)",
+              [result[0][0].userId],
+              function (err, result) {
+                if (err) {
+                  console.log(err);
+                }
+                console.log("User Favourites result:", result);
+                // We don't need to worry about if there are any items in here as they're not explicitly accessed
+                return res.json({
+                  success: true,
+                  favouriteTitles: result[0],
+                });
+              }
+            );
+          } else {
+            console.log("This is awkward... How do you not have a UserID?");
+            res.redirect("/login");
+          }
+        }
+      );
     }
   });
 
@@ -363,7 +401,7 @@ module.exports = function (app, boaData) {
     }
   });
 
-  // When the DOM is loaded we can fetch some data if needed (most likely like a random movie from the year as a suggestion)
+  // When the Landing Page DOM is loaded we can fetch some data if needed (most likely like a random movie from the year as a suggestion)
   app.get("/fetch-landing-data", async (req, res) => {
     try {
       res.json({
