@@ -1,5 +1,5 @@
 /* Title Preview Containers */
-#titles-container {
+.titles-container {
     display        : flex;
     flex-direction : row;
     justify-content: flex-start;

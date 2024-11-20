@@ -3,7 +3,7 @@ var express = require("express");
 var mysql = require("mysql");
 var session = require("express-session");
 var ejs = require("ejs");
-var expressSanitizer = require('express-sanitizer');
+var expressSanitizer = require("express-sanitizer");
 // Hide away all API keys in here
 require("dotenv").config();
 
@@ -27,20 +27,20 @@ app.use(
 const port = 8000;
 
 // Define the database connection
-const db = mysql.createConnection ({
-  host: 'localhost',
+const db = mysql.createConnection({
+  host: "localhost",
   user: DB_USER,
   password: DB_PASSWORD,
-  database: DB_NAME
+  database: DB_NAME,
 });
 
 // Connect to the database
 db.connect((err) => {
   if (err) {
-      console.log('Error connecting to BOA database');
-      throw err;
+    console.log("Error connecting to BOA database");
+    throw err;
   }
-  console.log('Connected to BOA database successfully!');
+  console.log("Connected to BOA database successfully!");
 });
 global.db = db;
 

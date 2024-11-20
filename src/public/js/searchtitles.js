@@ -3,7 +3,7 @@ import { titlesManager } from "./titlesmanager.js";
 document.addEventListener("DOMContentLoaded", () => {
   // Grab the searchbar, searchmenubutton and the searchmenu itself
   const searchInput = document.getElementById("search-input");
-  const searchMenuButton = document.getElementById("search-button");
+  const searchMenuButton = document.getElementById("search-close-button");
   const searchMenuOverlay = document.getElementById("generic-overlay");
 
   // Add event listener to the search button
@@ -51,17 +51,17 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
 
             if (data.success) {
-              // Show the search results overlay
-              const container = document.getElementById("generic-overlay");
-              container.style.display = "flex";
-
               // Update the titles container with the data that we just fetched
               titlesManager.updateTitlesContainerWithData(
                 false,
                 true,
                 data.foundTitles,
-                "titles-container"
+                "search-titles-container"
               );
+
+              // Show the search results overlay
+              const container = document.getElementById("generic-overlay");
+              container.style.display = "flex";
 
               // Update the title of the menu with the number of results and the query
               document.querySelector("#generic-overlay h1").textContent =
@@ -77,14 +77,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
               // Commence fade-out after 200ms
               setTimeout(() => {
-                // Fade out the loading overlay
+                // Fade out the loading overlay and ready the searchMenuOverlay
                 overlay.classList.add("fade-out");
-                overlay.addEventListener("transitionend", () => {
-                  // Once the loading overlay has faded we can fade in the search results menu
+                searchMenuOverlay.style.display = "flex";
+                setTimeout(() => {
+                  // Fade in the search results menu and remove the loading overlay
                   overlay.style.display = "none";
-                  searchMenuOverlay.style.display = "flex";
                   searchMenuOverlay.classList.remove("fade-out");
-                });
+                }, 200);
               }, 200);
             } else {
               console.error("Error fetching API data:", data);

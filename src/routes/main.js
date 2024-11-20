@@ -27,6 +27,7 @@ module.exports = function (app, boaData) {
     }
   });
 
+  // Get the user's favourite movies
   app.get("/get-user-favourites", async (req, res) => {
     if (!(req.session && req.session.loggedIn)) {
       res.redirect("/login");
@@ -60,6 +61,55 @@ module.exports = function (app, boaData) {
             console.log("This is awkward... How do you not have a UserID?");
             res.redirect("/login");
           }
+        }
+      );
+    }
+  });
+
+  // Get the most saved titles by all users from the database
+  app.get("/get-trending-titles", async (req, res) => {
+    if (!(req.session && req.session.loggedIn)) {
+      res.redirect("/login");
+    } else {
+      db.query("CALL getMostSavedTitles()", async function (err, result) {
+        if (err) {
+          console.log(err);
+          return res
+            .status(500)
+            .json({ error: "Error fetching trending titles" });
+        }
+        console.log("Trending Titles result:", result[0]);
+        res.json({
+          success: true,
+          message: "DB query was complete! GOOD TO GO!",
+          foundTitles: result[0],
+        });
+      });
+    }
+  });
+
+  app.post("/get-matching-titles", async (req, res) => {
+    if (!(req.session && req.session.loggedIn)) {
+      res.redirect("/login");
+    } else {
+      console.log("Received request with keyword:", req.body.keyword);
+      const keyword = req.sanitize(req.body.keyword);
+      db.query(
+        "CALL findMatchingTitles(?)",
+        [keyword],
+        async function (err, result) {
+          if (err) {
+            console.log(err);
+            return res
+              .status(500)
+              .json({ error: "Error fetching matching titles" });
+          }
+          console.log("Matching Titles result:", result[0]);
+          res.json({
+            success: true,
+            message: "DB query was complete! GOOD TO GO!",
+            foundTitles: result[0],
+          });
         }
       );
     }
@@ -164,6 +214,7 @@ module.exports = function (app, boaData) {
     );
   });
 
+  // Home page / landing page
   app.get("/home", async (req, res) => {
     // Ensure we are logged in before we can access the home page
     if (!req.session || !req.session.loggedIn) {
@@ -247,7 +298,7 @@ module.exports = function (app, boaData) {
   });
 
   // When the user clicks the save button on the movie page we will save the movie to the user's account
-  app.post("/toggle-save-movie", async (req, res) => {
+  app.post("/toggle-save-movie-state", async (req, res) => {
     // Ensure we are logged in before we can access the home page
     if (!(req.session && req.session.loggedIn)) {
       res.redirect("/login");
@@ -310,6 +361,8 @@ module.exports = function (app, boaData) {
     }
   });
 
+  // When the page is loaded this request is sent alongside the ttID to get the movie data
+  // Optionally we could pass the data found from the search query to save on repeat API calls
   app.post("/submit-ttID", async (req, res) => {
     if (!(req.session && req.session.loggedIn)) {
       res.status(500).json({ error: "An error occurred" });
@@ -438,7 +491,7 @@ module.exports = function (app, boaData) {
   app.get("/api/BOA/findTitles", async (req, res) => {
     // Use express sanitizer to clean up the search query for anything malicious
     const searchQuery = req.sanitize(req.query.searchQuery);
-    console.log("Received search query:", searchQuery);
+    console.log("BOA API - received request with query:", searchQuery);
 
     const searchResult = await BOM_API.searchForTitles(searchQuery);
     // Server-side validation to ensure the search query is not empty
@@ -461,6 +514,39 @@ module.exports = function (app, boaData) {
       success: true,
       message: "Search is clean & all API calls complete! GOOD TO GO!",
       titleIDs: movieList,
+    });
+  });
+
+  // Route to get the ttIDs of trending titles
+  // EXAMPLE: /api/BOA/getTrendingTitles?count=5
+  // -------------------------------------------------
+  app.get("/api/BOA/getTrendingTitles", async (req, res) => {
+    // Sanitize and ensure the search query is an integer otherwise it will return the default of 5
+    const searchQuery = Number.isInteger(parseInt(req.query.count))
+      ? parseInt(req.query.count)
+      : 5;
+    console.log("BOA API - received request with query:", searchQuery);
+
+    db.query("CALL getMostSavedTitles()", async function (err, result) {
+      if (err) {
+        console.log(err);
+        res.json({
+          success: false,
+          message: "DB query was not complete!",
+          foundTitles: [],
+        });
+      }
+      console.log("Trending Titles result:", result[0]);
+      var foundTitles = [];
+      result[0].slice(0, searchQuery).forEach((title) => {
+        foundTitles.push({ ttID: title.ttID, title: title.title });
+      });
+      // Return the data to the front end
+      res.json({
+        success: true,
+        message: "DB query was complete! GOOD TO GO!",
+        foundTitles,
+      });
     });
   });
 };

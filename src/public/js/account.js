@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (data.success) {
       // Update the titles container with the data that we just fetched
       // If we did get 0 favourites, the container will be handled within the subfunction
-      titlesManager.updateTitlesContainerWithData(true, false, data.favouriteTitles, "titles-container");
+      titlesManager.updateTitlesContainerWithData(true, false, data.favouriteTitles, "account-titles-container");
     } else {
       // Error thats specific to the execution of the fetch query
       console.error("Error SQL-related or userID related for favourites data:", data);

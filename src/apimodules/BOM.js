@@ -69,7 +69,12 @@ const BOM_API = {
 
       // Extract the movie title (we don't really need to do this but since we've requested it we might as well use it)
       // Additonally strip the release year as we already have that information in the details
-      const title = ($(".a-size-extra-large").first().text().trim()).split("(")[0];
+      const title = $(".a-size-extra-large")
+        .first()
+        .text()
+        .trim()
+        .split("(")[0]
+        .slice(0, -1);
 
       // Extract the description of the movie
       const summary = $("span.a-size-medium").first().text().trim();
@@ -272,8 +277,13 @@ const BOM_API = {
       var imageElement = $(".primary_image_highlight");
 
       // Get the 2x image source URL (optionally we can extract the 1x image source as well)
-      var imageSrc = imageElement.attr("data-src-2x").trim();
-      return imageSrc;
+      if (imageElement.attr("data-src-2x") !== undefined) {
+        var imageSrc = imageElement.attr("data-src-2x").trim();
+        return imageSrc;
+      } else {
+        // In some instances 'announced' movies that are very distant will have little information so we will use a fallback image
+        return "/images/BOAPoster.jpg";
+      }
     } catch (err) {
       console.error("Error fetching poster image: ", err);
       throw err;

@@ -68,7 +68,37 @@ ORDER BY
 END // 
 DELIMITER ;
 
---- Return a row or null if the input user has favourited a title or not
+-- Gets titles data for the app-wide saved movies, ordered by count
+DELIMITER //
+CREATE PROCEDURE getMostSavedTitles () BEGIN
+-- Retrieves all column data from movies table
+SELECT 
+    m.*, 
+    COUNT(*) AS count 
+FROM 
+    UserFavourites uf 
+INNER JOIN 
+    Movies m ON uf.movieId = m.movieId 
+GROUP BY 
+    m.movieId;
+
+END //
+DELIMITER ;
+
+-- Finds matching titles based on a keyword search
+DELIMITER //
+CREATE PROCEDURE findMatchingTitles (IN p_keyword VARCHAR(50)) 
+BEGIN
+    SELECT *
+FROM 
+    Movies m
+WHERE
+	m.title LIKE CONCAT('%', p_keyword, '%');
+    
+END //
+DELIMITER ;
+
+--- Find if the given user has a given title favourited: returns a row or null if the input user has favourited a title or not
 DELIMITER //
 CREATE PROCEDURE hasUserFavouritedTitle (IN p_userId INT, IN p_ttId VARCHAR(10)) BEGIN
 -- Checks if the user has favorited the movie
