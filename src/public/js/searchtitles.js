@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Add event listener to the search bar input
   if (searchInput) {
     searchInput.addEventListener("keydown", async (event) => {
       // Check if the Enter key is pressed
@@ -31,6 +32,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Ensure it's not an empty string
         if (searchText.length > 0) {
+          // Update the loading message
+          document.getElementById("loading-message").innerText =
+            "SEARCHING FOR TITLES";
+
           // Grab the loading overlay and make it visible
           const overlay = document.getElementById("loading-overlay");
           overlay.classList.remove("fade-out");

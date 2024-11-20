@@ -166,6 +166,9 @@
                     isMouseOverTopNavBar = false;
                 });
 
+                // Fly to location when the globe is finally loaded
+                var randomCoords = [0,0];
+
                 if('<%= ttID %>' != 'home'){
                     // If we have a ttID in the URL, we will use that to search for a movie
                     const response = await fetch('/submit-ttID', {
@@ -182,7 +185,8 @@
                         updateLandingPageWithMovieData(data);
                         // Updates the 'Save Movie' button to reflect the current state of the movie
                         getTitleSavedState('<%= ttID %>');
-                        
+                        // Get random coords from geoData length to fly to a new location
+                        randomCoords = data.geoData[Math.floor(Math.random() * data.geoData.length)].coords;
                         // Commence fade-out after 200 ms (DOM needs some time to make the changes)
                         setTimeout(() => {
                             var saveBtn = document.getElementById("save-movie");
@@ -195,16 +199,14 @@
                     }
                 }
                 // If we are entering the homepage without any ttID we can just unfade as per usual
-                // Commence fade-out after 200 ms (DOM needs some time to make the changes)
-                const mapContainer = document.getElementById('map');
-                mapContainer.classList.add('visible');
+                // Commence fade-out after 100 ms (DOM can have some extra time to finish updating the changes)
                 setTimeout(() => {
                     overlay.classList.add('fade-out');
                     updateMarkerOpacity();
                     map.flyTo({
-                        center: [-96,36],
+                        center: randomCoords,
                         zoom: 2,
-                        speed: .3, 
+                        speed: .2, 
                         curve: 1
                     });
                     overlay.addEventListener('transitionend', () => {
@@ -217,6 +219,8 @@
                         loadingMessage.innerText = "COOLING THE AFTERBURNERS...";
 
                         // Fade in the map
+                        const mapContainer = document.getElementById('map');
+                        mapContainer.classList.add('visible');
                         const leftPanelContainer = document.getElementById('left-panel');
                         leftPanelContainer.classList.add('visible');
                         
@@ -225,7 +229,7 @@
                             await toggleTitleSavedState('<%= ttID %>');
                         });
                     });
-                }, 200);
+                }, 100);
             }
         } catch (error) {
             console.error('Error fetching API data:', error);
