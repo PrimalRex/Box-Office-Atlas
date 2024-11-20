@@ -19,16 +19,16 @@ module.exports = function (app, boaData) {
 
   // Account page
   app.get("/account", async (req, res) => {
-    if (req.session && req.session.loggedIn) {
-      res.render("account.ejs", { user: req.session.user });
+    if (!(req.session && req.session.loggedIn)) {
+      res.redirect("/login");
     } else {
       //res.redirect("/login");
-      res.render("account.ejs", { user: "Guest" });
+      res.render("account.ejs", { user: req.session.user });
     }
   });
 
   app.get("/get-user-favourites", async (req, res) => {
-    if (!req.session || !req.session.loggedIn) {
+    if (!(req.session && req.session.loggedIn)) {
       res.redirect("/login");
     } else {
       db.query(
@@ -82,7 +82,7 @@ module.exports = function (app, boaData) {
 
   // User registration
   app.get("/register", async (req, res) => {
-    if (!req.session || !req.session.loggedIn) {
+    if (!(req.session && req.session.loggedIn)) {
       res.render("register.ejs");
     } else {
       res.redirect("/home");
@@ -112,7 +112,7 @@ module.exports = function (app, boaData) {
 
   // User login
   app.get("/login", async (req, res) => {
-    if (!req.session || !req.session.loggedIn) {
+    if (!(req.session && req.session.loggedIn)) {
       res.render("login.ejs");
     } else {
       res.redirect("/home");
@@ -208,7 +208,7 @@ module.exports = function (app, boaData) {
   // Since this 'getting' request is independent from the 'toggling' one it can behave separately
   app.post("/get-save-movie-state", async (req, res) => {
     // Ensure we are logged in before we can access the home page
-    if (!req.session || !req.session.loggedIn) {
+    if (!(req.session && req.session.loggedIn)) {
       return res.redirect("/login");
     } else {
       // Get the user ID from the session
@@ -249,7 +249,7 @@ module.exports = function (app, boaData) {
   // When the user clicks the save button on the movie page we will save the movie to the user's account
   app.post("/toggle-save-movie", async (req, res) => {
     // Ensure we are logged in before we can access the home page
-    if (!req.session || !req.session.loggedIn) {
+    if (!(req.session && req.session.loggedIn)) {
       res.redirect("/login");
     } else {
       // Get the user ID from the session
@@ -311,97 +311,110 @@ module.exports = function (app, boaData) {
   });
 
   app.post("/submit-ttID", async (req, res) => {
-    try {
-      var movieBreakdown = await BOM_API.createBoxOfficeBreakdownForTitle(
-        req.sanitize(req.body.ttID)
-      );
-      // Get the poster image for the movie
-      movieBreakdown.setMovieImgSrc(
-        await BOM_API.getTitlePosterImageSrc(movieBreakdown.getTtID())
-      );
-
-      // Get the average color of the poster image
-      await movieBreakdown.setAveragePixelColorFromPoster();
-      var geo = {};
-      if (movieBreakdown.getCountryGrossesAsAlpha().length != 0) {
-        geo = await WORLD_GEO_JSON_MODULE.createGeoDataInfoFromAlpha(
-          movieBreakdown.getCountryGrossesAsAlpha()
-        );
-      }
-      console.log(geo);
-      // Return the data to the front end
-      res.json({
-        success: true,
-        message: "Search is clean & all API calls complete! GOOD TO GO!",
-        boaData,
-        movie: movieBreakdown,
-        geoData: geo,
-      });
-    } catch (error) {
-      console.error("Error processing ttID query:", error);
+    if (!(req.session && req.session.loggedIn)) {
       res.status(500).json({ error: "An error occurred" });
+    } else {
+      try {
+        var movieBreakdown = await BOM_API.createBoxOfficeBreakdownForTitle(
+          req.sanitize(req.body.ttID)
+        );
+        // Get the poster image for the movie
+        movieBreakdown.setMovieImgSrc(
+          await BOM_API.getTitlePosterImageSrc(movieBreakdown.getTtID())
+        );
+
+        // Get the average color of the poster image
+        await movieBreakdown.setAveragePixelColorFromPoster();
+        var geo = {};
+        if (movieBreakdown.getCountryGrossesAsAlpha().length != 0) {
+          geo = await WORLD_GEO_JSON_MODULE.createGeoDataInfoFromAlpha(
+            movieBreakdown.getCountryGrossesAsAlpha()
+          );
+        }
+        console.log(geo);
+        // Return the data to the front end
+        res.json({
+          success: true,
+          message: "Search is clean & all API calls complete! GOOD TO GO!",
+          boaData,
+          movie: movieBreakdown,
+          geoData: geo,
+        });
+      } catch (error) {
+        console.error("Error processing ttID query:", error);
+        res.status(500).json({ error: "An error occurred" });
+      }
     }
   });
 
   // When the user enters a title search query we process the BOM API Search call
   app.post("/submit-title-search", async (req, res) => {
-    try {
-      // Use express sanitizer to clean up the search query for anything malicious
-      const searchQuery = req.sanitize(req.body.searchText);
-      console.log("Received search query:", searchQuery);
-  
-      // Server-side validation to ensure the search query is not empty
-      if (!searchQuery || searchQuery.length < 1) {
-        console.error("Invalid search query! Could be malicious?");
-        return res
-          .status(400)
-          .json({ error: "Invalid search query! Could be malicious?" });
-      }
-  
-      // Perform the API calls to grab movies, choose a movie, source the images, get a color average, and find the country grosses
-      console.time("BOM_API.searchForTitles");
-      const searchResult = await BOM_API.searchForTitles(searchQuery);
-      console.timeEnd("BOM_API.searchForTitles");
-  
-      if (!searchResult || searchResult.length === 0) {
-        return res.json({
-          success: true,
-          message: "Search is clean & all API calls complete! No titles found :( but...  GOOD TO GO!",
-          foundTitles: [],
-        });
-      }
-  
-      console.time("Composing searchResults");
-  
-      // Since we are doing an async loop we need to promise a return of all the data
-      const foundTitles = await Promise.all(
-        searchResult.map(async (title) => {
-          const movieData = await BOM_API.createBoxOfficeBreakdownForTitle(title.movieId);
-          const imageUrl = await BOM_API.getTitlePosterImageSrc(movieData.getTtID());
-  
-          return {
-            imageUrl,
-            releaseYear: movieData.getReleaseYear(),
-            title: movieData.title.toUpperCase(),
-            ttID: movieData.getTtID(),
-          };
-        })
-      );
-  
-      console.timeEnd("Composing searchResults");
-  
-      // Return the data to the front end
-      console.log(foundTitles);
-      res.json({
-        success: true,
-        message: "Search is clean & all API calls complete! GOOD TO GO!",
-        foundTitles,
-      });
-    } catch (error) {
-      console.error("Error processing search query:", error);
+    if (!(req.session && req.session.loggedIn)) {
       res.status(500).json({ error: "An error occurred" });
+    } else {
+      try {
+        // Use express sanitizer to clean up the search query for anything malicious
+        const searchQuery = req.sanitize(req.body.searchText);
+        console.log("Received search query:", searchQuery);
+
+        // Server-side validation to ensure the search query is not empty
+        if (!searchQuery || searchQuery.length < 1) {
+          console.error("Invalid search query! Could be malicious?");
+          return res
+            .status(400)
+            .json({ error: "Invalid search query! Could be malicious?" });
+        }
+
+        // Perform the API calls to grab movies, choose a movie, source the images, get a color average, and find the country grosses
+        console.time("BOM_API.searchForTitles");
+        const searchResult = await BOM_API.searchForTitles(searchQuery);
+        console.timeEnd("BOM_API.searchForTitles");
+
+        if (!searchResult || searchResult.length === 0) {
+          return res.json({
+            success: true,
+            message:
+              "Search is clean & all API calls complete! No titles found :( but...  GOOD TO GO!",
+            foundTitles: [],
+          });
+        }
+
+        console.time("Composing searchResults");
+
+        // Since we are doing an async loop we need to promise a return of all the data
+        const foundTitles = await Promise.all(
+          searchResult.map(async (title) => {
+            const movieData = await BOM_API.createBoxOfficeBreakdownForTitle(
+              title.movieId
+            );
+            const imageUrl = await BOM_API.getTitlePosterImageSrc(
+              movieData.getTtID()
+            );
+
+            return {
+              imageUrl,
+              releaseYear: movieData.getReleaseYear(),
+              title: movieData.title.toUpperCase(),
+              ttID: movieData.getTtID(),
+            };
+          })
+        );
+
+        console.timeEnd("Composing searchResults");
+
+        // Return the data to the front end
+        console.log(foundTitles);
+        res.json({
+          success: true,
+          message: "Search is clean & all API calls complete! GOOD TO GO!",
+          foundTitles,
+        });
+      } catch (error) {
+        console.error("Error processing search query:", error);
+        res.status(500).json({ error: "An error occurred" });
+      }
     }
-  });  
+  });
 
   // When the Landing Page DOM is loaded we can fetch some data if needed (most likely like a random movie from the year as a suggestion)
   app.get("/fetch-landing-data", async (req, res) => {
@@ -431,8 +444,9 @@ module.exports = function (app, boaData) {
     // Server-side validation to ensure the search query is not empty
     if (searchResult.length == 0) {
       res.json({
-        success: false,
+        success: true,
         message: "No search results found :(",
+        titleIDs: [],
       });
     }
 
