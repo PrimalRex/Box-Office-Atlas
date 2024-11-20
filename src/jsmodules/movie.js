@@ -46,8 +46,12 @@ class Movie {
     return this.ttID;
   }
 
-  getReleaseYear(){
-    return this.movieDetails.earliestReleaseDate.split(" ")[2];
+  getReleaseYear() {
+    if (this.movieDetails.earliestReleaseDate !== undefined) {
+      return this.movieDetails.earliestReleaseDate.split(" ")[2];
+    } else {
+      return "";
+    }
   }
 
   setMovieTitle(title) {
@@ -96,11 +100,16 @@ class Movie {
     // Some old movies or obscure ones might only release domestic so our 3 country minimum for alpha is not met
     if (this.getMovieFinancials().grossByCountry.length == 0) {
       return [];
+    // If we only have 1 item, domestic, we can just assume that it contributes 100%
+    // In some edge cases, the box office financials for a specific title might not be available for all countries
+    // That is just a limitation of the data thats available and not how this system operates
     } else if (this.getMovieFinancials().grossByCountry.length < 2) {
       return [
         {
           country: this.getMovieFinancials().grossByCountry[0].country,
-          countryGross: 1,
+          countryGross: this.getMovieFinancials().domesticGross,
+          countryGrossAlpha: 1,
+          countryGrossPercentage: 100,
         },
       ];
     }
@@ -125,9 +134,11 @@ class Movie {
         100;
       // Round to 2 decimal places because we dont need an extreme amount of precision.
       // In some cases we may round to 3dp because the gross of the country is too insignificant
-      grossPercentage = Math.round(grossPercentage * 100) / 100 == 0 ? 
-      Math.round(grossPercentage * 1000) / 1000 : Math.round(grossPercentage * 100) / 100;
-  
+      grossPercentage =
+        Math.round(grossPercentage * 100) / 100 == 0
+          ? Math.round(grossPercentage * 1000) / 1000
+          : Math.round(grossPercentage * 100) / 100;
+
       // Convert the value into a normalized alpha of 0.3-1 where 0.3 is lowestGrossing and 1 is highestGrossing number
       value =
         ((value - lowestGross) / (averageGross - lowestGross)) * (1 - 0.3) +

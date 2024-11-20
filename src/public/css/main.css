@@ -28,14 +28,14 @@ body {
 }
 
 /* Loading Screen Overlay */
-#loading-overlay {
+#loading-overlay, #generic-overlay {
     position        : fixed;
     top             : 0;
     left            : 0;
     width           : 100%;
     height          : 100%;
     background-color: hsl(240, 10%, 8%);
-    z-index         : 9999;
+    z-index         : 9998;
     display         : flex;
     flex-direction  : column;
     align-items     : center;
@@ -44,12 +44,25 @@ body {
     color           : white;
     opacity         : 1;
     visibility      : visible;
-    transition      : opacity .75s cubic-bezier(0.075, 0.82, 0.165, 1);
-    font            : 1.5em 'HelveticaNow_Bold', sans-serif;
-    font-style      : italic;
+    transition      : opacity .5s cubic-bezier(0.175, 0.885, 0.32, 1.275)
 }
 
-#loading-overlay.fade-out {
+#generic-overlay {
+    display:none;
+    opacity: 1;
+    background-color: hsla(240, 10%, 8%, 0.75);
+    backdrop-filter: blur(20px);
+}
+
+#loading-overlay {
+    font            : 1.5em 'HelveticaNow_Bold', sans-serif;
+    font-style      : italic;
+    z-index         : 9999;
+    background-color: hsla(240, 10%, 8%, 0.75);
+    backdrop-filter: blur(20px);
+}
+
+#loading-overlay.fade-out, #generic-overlay.fade-out {
     opacity: 0;
 }
 
@@ -175,11 +188,16 @@ body {
     padding-top     : 20px;
     box-sizing      : border-box;
     visibility      : visible;
-    opacity         : 1;
+    opacity         : 0;
     z-index         : 1000;
     background-color: hsla(240, 10%, 8%, 1);
     backdrop-filter : blur(5px);
     overflow-y      : hidden;
+    transition: opacity .5s cubic-bezier(0.39, 0.575, 0.565, 1)
+}
+
+#left-panel.visible {
+    opacity: 1;
 }
 
 #movie-details {
@@ -214,6 +232,7 @@ p {
 }
 
 #movie-subbox,
+#search-info,
 #movie-summary {
     position  : flex;
     top       : 50%;
@@ -407,4 +426,22 @@ p {
 
 #marker-country.visible {
     opacity: 1;
+}
+
+#search-button {
+    width        : 300px;
+    padding      : 10px;
+    border       : none;
+    border-radius: 10px;
+    background   : hsl(240, 4%, 20%);
+    color        : white;
+    font-size    : .9em;
+    font-family  : 'HelveticaNow_Bold', sans-serif;
+    box-shadow   : 0 4px 15px rgba(0, 0, 0, 0.5);
+    cursor       : pointer;
+    transition   : background-color 0.3s;
+}
+
+#search-button:hover {
+    background: hsl(240, 4%, 25%);
 }

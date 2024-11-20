@@ -30,7 +30,7 @@
     border-radius  : 10px;
     background     : hsl(240, 4%, 20%);
     color          : white;
-    font-size      : 1em;
+    font-size      : .9em;
     font-family    : 'HelveticaNow_Bold', sans-serif;
     box-shadow     : 0 4px 15px rgba(0, 0, 0, 0.5);
     cursor         : pointer;

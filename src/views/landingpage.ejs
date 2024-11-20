@@ -7,9 +7,11 @@
   <link href="/css/mapbox-gl.css" rel="stylesheet">
   <link href="/css/mapbox-extra.css" rel="stylesheet">
   <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/titles.css" rel="stylesheet">
   <link href="/css/loaders.css" rel="stylesheet">
   <script src="/js/mapbox-gl.js"></script>
-  <script src="/js/landingpage.js" type="text/javascript"></script> 
+  <script src="/js/landingpage.js" type="text/javascript"></script>
+  <script type="module" src="/js/searchtitles.js"></script>
 </head>
 <body>
   <!-- Loading Screen -->
@@ -26,6 +28,18 @@
     <div class="quote-box">
         <p>"<%= quote.quote %>"</p>
         <p><strong><%= quote.quoteAuthor %></strong></p>
+    </div>
+  </div>
+
+  <!-- Search Results Overlay -->
+  <div id="generic-overlay" class="fade-out">
+    <h1>FOUND (0) RESULTS</h1>
+    <p><span id="search-info"> :[  TRY A SHORTER SPELLING OR DIFFERENT NAME</span></p>
+    <div id="titles-container">
+    </div>
+    <p></p>
+    <div id="search-button">
+        <th id="close-search-menu">CLOSE SEARCH RESULTS</th>
     </div>
   </div> 
   
@@ -109,7 +123,7 @@
     const map = new mapboxgl.Map({
       container: 'map',
       style: '/BOAStyle.json',
-      center:[-90, 0], // starting position [lng, lat] (awkward why this is flipped)
+      center:[90, -13], // starting position [lng, lat] (awkward why this is flipped)
       zoom: 1.5,
       minZoom: 1.5,
       maxZoom: 3.9,
@@ -120,58 +134,6 @@
 
     // Variable to store whether the mouse is over the top nav bar
     var isMouseOverTopNavBar = false;
-
-    document.getElementById("search-input").addEventListener("keydown", async function(event) {
-        // Check if the Enter key is pressed
-        if (event.key === "Enter") {
-            // Capture the input value and validate that its not empty
-            const searchInput = document.getElementById('search-input');
-            const searchText = event.target.value;
-            searchInput.value = '';
-
-            if(searchText.length > 0){
-                // Throw up a different message
-                loadingMessage = document.getElementById('loading-message');
-                loadingMessage.innerText = '<%= loadingMessages[Math.floor(Math.random() * loadingMessages.length)] %>';
-
-                // Grab the loading overlay and make it visible
-                const overlay = document.getElementById('loading-overlay');
-                overlay.classList.remove('fade-out');
-                overlay.style.display = 'flex';
-
-                const response = await fetch('/submit-title-search', {
-                    method: 'POST',
-                    body: JSON.stringify({ searchText: searchText }),
-                    headers: new Headers({ "Content-Type": "application/json" })
-                });
-
-                const data = await response.json();
-
-                if(data.success){
-                    // Clears existing globe info and update the landing page with the new movie data
-                    clearMarkersAndLayers(markers, map);
-                    updateLandingPageWithMovieData(data);
-                    
-                    // Commence fade-out after 200 ms (DOM needs some time to make the changes)
-                    setTimeout(() => {
-                        overlay.classList.add('fade-out');
-                        updateMarkerOpacity();
-
-                        var saveBtn = document.getElementById("save-movie");
-                        saveBtn.classList.add('visible');
-                        var grossesTable = document.getElementById("grosses-table");
-                        grossesTable.classList.add('visible');
-
-                        overlay.addEventListener('transitionend', () => {
-                            overlay.style.display = 'none';
-                        });
-                    }, 200);
-                } else {
-                    console.error('Error fetching API data:', data);
-                }
-            }
-        }
-    });
 
     // Once all the elements on the page have loaded we will ask the server to provide us with some data to use
     document.addEventListener("DOMContentLoaded", async function() {
@@ -195,10 +157,6 @@
             const data = await response.json();
             
             if (data.success) {
-                // Grab the loading overlay and update the message
-                var loadingMessage = document.getElementById('loading-message');
-                loadingMessage.innerText = "COOLING THE AFTERBURNERS...";
-
                 // Add event listeners to show/hide the top nav bar on hover
                 document.getElementById("top-nav-bar").addEventListener("mouseenter", () => {
                     document.getElementById("top-nav-bar").classList.add("visible");
@@ -238,19 +196,30 @@
                 }
                 // If we are entering the homepage without any ttID we can just unfade as per usual
                 // Commence fade-out after 200 ms (DOM needs some time to make the changes)
+                const mapContainer = document.getElementById('map');
+                mapContainer.classList.add('visible');
                 setTimeout(() => {
                     overlay.classList.add('fade-out');
                     updateMarkerOpacity();
                     map.flyTo({
-                        center: [0,0],
+                        center: [-96,36],
                         zoom: 2,
-                        speed: .8, 
-                        curve: 1 
+                        speed: .3, 
+                        curve: 1
                     });
                     overlay.addEventListener('transitionend', () => {
                         // Only when the animation is finished do we allow the users to interact with the app and any other elements
                         overlay.style.display = 'none';
                         updateMarkerOpacity();
+
+                        // Grab the loading overlay and update the message
+                        var loadingMessage = document.getElementById('loading-message');
+                        loadingMessage.innerText = "COOLING THE AFTERBURNERS...";
+
+                        // Fade in the map
+                        const leftPanelContainer = document.getElementById('left-panel');
+                        leftPanelContainer.classList.add('visible');
+                        
                         // Postload, we can register the movie to be ready to be saved (prevents saving before the user loads everything)
                         document.getElementById("save-movie").addEventListener("click", async () => {
                             await toggleTitleSavedState('<%= ttID %>');

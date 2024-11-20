@@ -49,7 +49,7 @@ module.exports = function (app, boaData) {
                   console.log(err);
                 }
                 console.log("User Favourites result:", result);
-                // We don't need to worry about if there are any items in here as they're not explicitly accessed
+                // We can get an undefined result so if thats the case we will just pass an empty array
                 return res.json({
                   success: true,
                   favouriteTitles: result !== undefined ? result[0] : [],
@@ -328,7 +328,7 @@ module.exports = function (app, boaData) {
           movieBreakdown.getCountryGrossesAsAlpha()
         );
       }
-
+      console.log(geo);
       // Return the data to the front end
       res.json({
         success: true,
@@ -343,63 +343,65 @@ module.exports = function (app, boaData) {
     }
   });
 
-  // When the user enters a title search query we will process it here
+  // When the user enters a title search query we process the BOM API Search call
   app.post("/submit-title-search", async (req, res) => {
     try {
       // Use express sanitizer to clean up the search query for anything malicious
       const searchQuery = req.sanitize(req.body.searchText);
       console.log("Received search query:", searchQuery);
-
+  
       // Server-side validation to ensure the search query is not empty
-      if (searchQuery.length < 1) {
+      if (!searchQuery || searchQuery.length < 1) {
         console.error("Invalid search query! Could be malicious?");
-        res
-          .status(500)
+        return res
+          .status(400)
           .json({ error: "Invalid search query! Could be malicious?" });
       }
-
-      // Perform the API calls to grab movies, choose a movie, source the images, get a color average and find the country grosses
+  
+      // Perform the API calls to grab movies, choose a movie, source the images, get a color average, and find the country grosses
       console.time("BOM_API.searchForTitles");
       const searchResult = await BOM_API.searchForTitles(searchQuery);
       console.timeEnd("BOM_API.searchForTitles");
-
-      // TODO HANDLE WHEN THERE ARE NO SEARCH RESULTS - CURRENTLY CRASHES THE SERVER AND LEAVES CLIENT IN LOADING SCREEN
-      console.time("BOM_API.createBoxOfficeBreakdownForTitle");
-      var firstMovieFromResult = await BOM_API.createBoxOfficeBreakdownForTitle(
-        searchResult[0].movieId
-      );
-      console.timeEnd("BOM_API.createBoxOfficeBreakdownForTitle");
-
-      // Get the poster image for the movie
-      console.time("BOM_API.setMovieImgSrc");
-      firstMovieFromResult.setMovieImgSrc(
-        await BOM_API.getTitlePosterImageSrc(firstMovieFromResult.getTtID())
-      );
-      console.timeEnd("BOM_API.setMovieImgSrc");
-
-      // Get the average color of the poster image
-      await firstMovieFromResult.setAveragePixelColorFromPoster();
-      var geo = {};
-      if (firstMovieFromResult.getCountryGrossesAsAlpha().length != 0) {
-        geo = await WORLD_GEO_JSON_MODULE.createGeoDataInfoFromAlpha(
-          firstMovieFromResult.getCountryGrossesAsAlpha()
-        );
+  
+      if (!searchResult || searchResult.length === 0) {
+        return res.json({
+          success: true,
+          message: "Search is clean & all API calls complete! No titles found :( but...  GOOD TO GO!",
+          foundTitles: [],
+        });
       }
-
+  
+      console.time("Composing searchResults");
+  
+      // Since we are doing an async loop we need to promise a return of all the data
+      const foundTitles = await Promise.all(
+        searchResult.map(async (title) => {
+          const movieData = await BOM_API.createBoxOfficeBreakdownForTitle(title.movieId);
+          const imageUrl = await BOM_API.getTitlePosterImageSrc(movieData.getTtID());
+  
+          return {
+            imageUrl,
+            releaseYear: movieData.getReleaseYear(),
+            title: movieData.title.toUpperCase(),
+            ttID: movieData.getTtID(),
+          };
+        })
+      );
+  
+      console.timeEnd("Composing searchResults");
+  
       // Return the data to the front end
-      console.log(firstMovieFromResult);
+      console.log(foundTitles);
       res.json({
         success: true,
         message: "Search is clean & all API calls complete! GOOD TO GO!",
-        boaData,
-        movie: firstMovieFromResult,
-        geoData: geo,
+        foundTitles,
       });
     } catch (error) {
       console.error("Error processing search query:", error);
       res.status(500).json({ error: "An error occurred" });
     }
-  });
+  });  
 
   // When the Landing Page DOM is loaded we can fetch some data if needed (most likely like a random movie from the year as a suggestion)
   app.get("/fetch-landing-data", async (req, res) => {

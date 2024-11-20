@@ -10,6 +10,15 @@ body {
     bottom     : 0;
     width      : 70%;
     height     : 100vh;
+    margin-left: 0%;
+    background: hsl(240, 10%, 8%);
+    opacity: 0;
+    transition: opacity 4.5s cubic-bezier(00, 0.0, 0.685, 0.22);
+    transition: margin-left 2s cubic-bezier(0.0, 0.0, 0.0, 1);
+}
+
+#map.visible {
+    opacity: 1;
     margin-left: 30%;
 }
 
