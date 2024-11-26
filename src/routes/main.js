@@ -486,9 +486,9 @@ module.exports = function (app, boaData) {
   // BOA API PROVISION
 
   // Route to get the ttIDs of movies that might match the search query
-  // EXAMPLE: /api/BOA/findTitles?searchQuery="the dark knight"
+  // EXAMPLE: /api/BOA/findTitleIDs?searchQuery="the dark knight"
   // -------------------------------------------------
-  app.get("/api/BOA/findTitles", async (req, res) => {
+  app.get("/api/BOA/findTitleIDs", async (req, res) => {
     // Use express sanitizer to clean up the search query for anything malicious
     const searchQuery = req.sanitize(req.query.searchQuery);
     console.log("BOA API - received request with query:", searchQuery);
