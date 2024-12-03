@@ -483,7 +483,45 @@ module.exports = function (app, boaData) {
     }
   });
 
+  //////////////////////////////
+
   // BOA API PROVISION
+
+  // This is the main route, it will tell users all the available endpoints and parameters
+  app.get("/api/BOA", async (req, res) => {
+    res.json({
+      success: true,
+      message: "Welcome to the BOA API, below are some available endpoints",
+      endpoints: {
+        "/api/BOA/findTitleIDs": {
+          description: "Search for movie title IDs",
+          parameters: {
+            searchQuery:
+              "Some text (with spaces) to find matching titles and their TTIDs",
+          },
+        },
+        "/api/BOA/getTrendingTitles": {
+          description: "Returns the most saved titles by all users",
+          parameters: {
+            count: "The number of trending titles to return",
+          },
+        },
+        "/api/BOA/getMovieDetails": {
+          description:
+            "Returns a breakdown of financials, details, and metadata of a given ttID",
+          parameters: {
+            ttID: "Unique ID for a movie title, based on the IMDb ttID format",
+          },
+        },
+        "/api/BOA/getMovieFinancials": {
+          description: "Returns the box office financials of a given ttID",
+          parameters: {
+            ttID: "Unique ID for a movie title, based on the IMDb ttID format",
+          },
+        },
+      },
+    });
+  });
 
   // Route to get the ttIDs of movies that might match the search query
   // EXAMPLE: /api/BOA/findTitleIDs?searchQuery="the dark knight"
@@ -548,5 +586,63 @@ module.exports = function (app, boaData) {
         foundTitles,
       });
     });
+  });
+
+  // Route to get the movie details of a specific movie
+  // EXAMPLE: /api/BOA/getMovieDetails?ttID=tt8864596
+  app.get("/api/BOA/getMovieDetails", async (req, res) => {
+    // Sanitize and ensure the search query is not empty as we need it to find the movie
+    const ttID = req.sanitize(req.query.ttID);
+    if (!ttID) {
+      return res.json({
+        success: false,
+        message: "No valid ttID provided!",
+        movie: [],
+      });
+    }
+    try {
+      const movieDetails = await BOM_API.createBoxOfficeBreakdownForTitle(ttID);
+      const poster = await BOM_API.getTitlePosterImageSrc(ttID);
+      movieDetails.setMovieImgSrc(poster);
+      res.json({
+        success: true,
+        message: "Query was complete! GOOD TO GO!",
+        movie: movieDetails,
+      });
+    } catch (error) {
+      res.json({
+        success: false,
+        message: "DB query was not complete, failed to create breakdown!",
+        movie: [],
+      });
+    }
+  });
+
+  // Route to get the financials of a specific movie
+  // EXAMPLE: /api/BOA/getMovieFinancials?ttID=tt8864596
+  app.get("/api/BOA/getMovieFinancials", async (req, res) => {
+    // Sanitize and ensure the search query is not empty as we need it to find the movie
+    const ttID = req.sanitize(req.query.ttID);
+    if (!ttID) {
+      return res.json({
+        success: false,
+        message: "No valid ttID provided!",
+        movie: [],
+      });
+    }
+    try {
+      const movieDetails = await BOM_API.createBoxOfficeBreakdownForTitle(ttID);
+      res.json({
+        success: true,
+        message: "Query was complete! GOOD TO GO!",
+        countryGrosses: movieDetails.getMovieFinancials(),
+      });
+    } catch (error) {
+      res.json({
+        success: false,
+        message: "DB query was not complete, failed to create breakdown!",
+        countryGrosses: [],
+      });
+    }
   });
 };
