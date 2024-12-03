@@ -133,7 +133,9 @@ module.exports = function (app, boaData) {
   // User registration
   app.get("/register", async (req, res) => {
     if (!(req.session && req.session.loggedIn)) {
-      res.render("register.ejs");
+      const message = req.query.message || "";
+      const error = req.query.error || "";
+      res.render("register.ejs", { message, error });
     } else {
       res.redirect("/home");
     }
@@ -151,10 +153,10 @@ module.exports = function (app, boaData) {
       async function (err, result) {
         if (err) {
           console.log(err);
-          res.redirect("/register");
+          res.redirect("/register?error=Username is already in use!");
         } else {
           console.log(result);
-          res.redirect("/login");
+          res.redirect("/login?message=Account created successfully!");
         }
       }
     );
@@ -163,7 +165,9 @@ module.exports = function (app, boaData) {
   // User login
   app.get("/login", async (req, res) => {
     if (!(req.session && req.session.loggedIn)) {
-      res.render("login.ejs");
+      const message = req.query.message || "";
+      const error = req.query.error || "";
+      res.render("login.ejs", { message, error });
     } else {
       res.redirect("/home");
     }
@@ -183,7 +187,7 @@ module.exports = function (app, boaData) {
         if (err || salt[0].length == 0) {
           // If we can't find a salt, meaning there is no user, then we redirect back to the login page
           console.log(err);
-          res.redirect("/login");
+          res.redirect("/login?error=Invalid username or password!");
         } else {
           // Hash the user's entered password with the salt we found from the user
           const pass = await bcrypt.hash(rawpass, salt[0][0].passwordSalt);
@@ -194,7 +198,7 @@ module.exports = function (app, boaData) {
             async function (err, result) {
               if (err) {
                 console.log(err);
-                res.redirect("/login");
+                res.redirect("/login?error=Invalid username or password!");
               }
               //console.log(result);
               // If the result is not empty then we have a successful login
@@ -205,7 +209,7 @@ module.exports = function (app, boaData) {
                 res.redirect("/home");
               } else {
                 console.log("Failed Credentials");
-                res.redirect("/login");
+                res.redirect("/login?error=Invalid username or password!");
               }
             }
           );

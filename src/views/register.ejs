@@ -16,6 +16,12 @@
       <input type="password" id="password" name="password" placeholder="Password" required>
       <button type="submit">SIGN UP</button>
     </form>
+    <% if (message) { %>
+      <p style="color: lightgreen;"><%= message %></p>
+    <% } %>
+    <% if (error) { %>
+      <p style="color: red;"><%= error %></p>
+    <% } %>
     <a class="register-link" href="/login">Already have an account? Login here.</a>
   </div>
 </body>
