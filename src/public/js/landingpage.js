@@ -93,6 +93,7 @@ function updateLandingPageWithMovieData(data) {
   const geoData = data.geoData;
 
   // Whether or not to use a heatmap color scheme (Greener = higher gross, Redder = lower gross)
+  // Used in testing but can be implemented as a future feature if average accent color is undesirable on specific titles
   const heatmap = false;
 
   // Iterate through the geoData and add a source and layer for each country
@@ -110,6 +111,7 @@ function updateLandingPageWithMovieData(data) {
       color = `rgb(${r}, ${g}, ${b})`;
     }
 
+    // Add a source for the country/region
     map.addSource(sourceId, {
       type: "geojson",
       data: data,
@@ -130,6 +132,7 @@ function updateLandingPageWithMovieData(data) {
       },
     });
 
+    // Add a marker
     const marker = new mapboxgl.Marker({
       color: "hsl(240, 20%, 4%)",
       clickTolerance: 50,
@@ -177,7 +180,7 @@ function updateLandingPageWithMovieData(data) {
         .classList.add("visible");
 
       // Only feasible solution to overlapping - making the hovered element a hugely higher z-index
-      // Other solutions can include items being reorderd in the DOM but will not be nice for performance
+      // Other solutions can include items being reordered in the DOM but will not be nice for performance
       marker.getElement().style.zIndex = 9998;
     });
     marker.getElement().addEventListener("mouseleave", () => {
@@ -196,6 +199,7 @@ function updateLandingPageWithMovieData(data) {
   }
 }
 
+// Removes all markers and layers from the map
 function clearMarkersAndLayers(markers, map) {
   markers.forEach((marker) => marker.remove());
   markers = [];

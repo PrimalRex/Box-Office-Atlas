@@ -1,15 +1,18 @@
 // LOTR QUOTES API
 // Switch Cases for de-scrambling the movie title ids
 // sourced @ https://github.com/dempsbx/LOTRQuoteRandomizer
-
 require("dotenv").config();
+
+// API key for The One API
 const THE_ONE_API_KEY = process.env.THE_ONE_API_BEARER_TOKEN;
 
+// Boilerplate headers we neeed for the API
 const headers = {
   Accept: "application/json",
   Authorization: "Bearer " + THE_ONE_API_KEY,
 };
 
+// Base URL for the API
 const baseURL = "https://the-one-api.dev/v2";
 
 const LOTRQUOTES_API = {
@@ -85,7 +88,7 @@ const LOTRQUOTES_API = {
     } else if (movieId == "5cd95395de30eff6ebccde57") {
       movieName = "The Hobbit Series";
     } else {
-      movieName = "Failed to get movie name - Rate Limited ?";
+      movieName = "Failed to get movie name: Rate Limited ?";
     }
     return movieName;
   },

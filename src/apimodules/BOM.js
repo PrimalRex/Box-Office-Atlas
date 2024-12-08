@@ -197,7 +197,8 @@ const BOM_API = {
           globalGrossDataByCountry = sanitizedGrossData;
         }
 
-        // If the title is recent or not quite cult-classic they will only have 1 round of box office performance
+        // If the title is recent or not quite "cult-classic" they will only have 1 round of box office performance
+        // In which case we need to read the DOM differently since it is presented as a different permutation of the single-release
         if (performanceChartCategory == movie.performanceChartCategories.Cat1) {
           var sanitizedGrossData = [];
 

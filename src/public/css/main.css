@@ -28,7 +28,9 @@ body {
 }
 
 /* Loading Screen Overlay */
-#loading-overlay, #generic-overlay, #trending-overlay {
+#loading-overlay,
+#generic-overlay,
+#trending-overlay {
     position        : fixed;
     top             : 0;
     left            : 0;
@@ -47,11 +49,12 @@ body {
     transition      : opacity .5s cubic-bezier(0.175, 0.885, 0.32, 1.275)
 }
 
-#generic-overlay, #trending-overlay {
-    display:none;
-    opacity: 1;
+#generic-overlay,
+#trending-overlay {
+    display         : none;
+    opacity         : 1;
     background-color: hsla(240, 10%, 8%, 0.75);
-    backdrop-filter: blur(20px);
+    backdrop-filter : blur(20px);
 }
 
 #loading-overlay {
@@ -59,11 +62,13 @@ body {
     font-style      : italic;
     z-index         : 9999;
     background-color: hsla(240, 10%, 8%, 0.75);
-    backdrop-filter: blur(20px);
+    backdrop-filter : blur(20px);
 }
 
 
-#loading-overlay.fade-out, #generic-overlay.fade-out, #trending-overlay.fade-out {
+#loading-overlay.fade-out,
+#generic-overlay.fade-out,
+#trending-overlay.fade-out {
     opacity: 0;
 }
 
@@ -115,7 +120,8 @@ body {
     opacity: 1;
 }
 
-#search-bar, #trending-search-bar {
+#search-bar,
+#trending-search-bar {
     position       : relative;
     display        : flex;
     flex-direction : row;
@@ -133,7 +139,8 @@ body {
     transform: translateX(0%);
 }
 
-#search-bar input[type=text], #trending-search-bar input[type=text] {
+#search-bar input[type=text],
+#trending-search-bar input[type=text] {
     width       : 100%;
     border      : none;
     margin-left : 50px;
@@ -155,7 +162,8 @@ body {
     overflow   : hidden;
 }
 
-#user-profile, #trending {
+#user-profile,
+#trending {
     width        : 50px;
     height       : 50px;
     margin-right : 10px;
@@ -203,7 +211,7 @@ body {
     background-color: hsla(240, 10%, 8%, 0);
     backdrop-filter : blur(5px);
     overflow-y      : hidden;
-    transition: opacity .5s cubic-bezier(0.39, 0.575, 0.565, 1)
+    transition      : opacity .5s cubic-bezier(0.39, 0.575, 0.565, 1)
 }
 
 #left-panel.visible {
@@ -438,7 +446,8 @@ p {
     opacity: 1;
 }
 
-#search-close-button, #trending-close-button {
+#search-close-button,
+#trending-close-button {
     width        : 300px;
     padding      : 10px;
     border       : none;
@@ -452,6 +461,7 @@ p {
     transition   : background-color 0.3s;
 }
 
-#search-close-button:hover, #trending-close-button:hover {
+#search-close-button:hover,
+#trending-close-button:hover {
     background: hsl(240, 4%, 25%);
 }

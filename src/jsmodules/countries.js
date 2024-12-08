@@ -1,6 +1,6 @@
 // This module is for country info and coordinates - also for functions
 // Coordinates sourced from: https://developers.google.com/public-data/docs/canonical/countries_csv
-// Some countries have been renamed or adjusted to fit the IMDb} spelling and format
+// Some countries have been renamed or adjusted to fit the IMDb spelling and format
 
 const countryCoords = {
                           "Andorra":{coords : [42.546245,1.601554],      code : "AD"},
@@ -244,13 +244,14 @@ const countryCoords = {
                          "Zimbabwe":{coords : [-19.015438,29.154857],    code : "ZW"}
 }; 
 const COUNTRY_MODULE = {
+  // Gets the country coordinates when given a country name
   getCountryCoords: function (country) {
     var coords = countryCoords[country].coords;
     return [coords[1], coords[0]];
   },
 
+  // Gets the country code when given a country name
   getCountryCode: function (country) {
-    //console.log(country);
     if (countryCoords[country] === undefined) {
       console.log("Don't know the XX code for " + country);
       return "N/A";
@@ -258,6 +259,7 @@ const COUNTRY_MODULE = {
     return countryCoords[country].code;
   },
 
+  // Gets the country name when given a country code
   getCountryNameFromCode: function (countryCode) {
     for (var country in countryCoords) {
       if (countryCoords[country].code === countryCode) {
