@@ -66,7 +66,7 @@ module.exports = function (app, boaData) {
     }
   });
 
-  // Get the most saved titles by all users from the database
+  // Get the most saved titles by all users from the DB
   app.get("/get-trending-titles", async (req, res) => {
     if (!(req.session && req.session.loggedIn)) {
       res.redirect("/login");
@@ -141,6 +141,7 @@ module.exports = function (app, boaData) {
     }
   });
 
+  // Post registration
   app.post("/post-register", async (req, res) => {
     // Sanitize the inputs
     const user = req.sanitize(req.body.username);
@@ -173,6 +174,7 @@ module.exports = function (app, boaData) {
     }
   });
 
+  // Post login
   app.post("/post-login", async (req, res) => {
     // Sanitize the inputs
     const user = req.sanitize(req.body.username);

@@ -138,15 +138,15 @@
   <div id="map"></div>
 
   <script>
-    mapboxgl.accessToken = '<%= boaData %>';
+    mapboxgl.accessToken = "<%= boaData %>";
     // Initialize map
     const map = new mapboxgl.Map({
-      container: 'map',
-      style: '/BOAStyle.json',
-      center:[90, -13], // starting position [lng, lat] (awkward why this is flipped)
-      zoom: 1.5,
-      minZoom: 1.5,
-      maxZoom: 3.9,
+    container: "map",
+    style: "/BOAStyle.json",
+    center: [90, -13], // starting position [lng, lat] (awkward why this is flipped)
+    zoom: 1.5,
+    minZoom: 1.5,
+    maxZoom: 3.9,
     });
 
     // Array to store all the markers on the map
@@ -156,132 +156,141 @@
     var isMouseOverTopNavBar = false;
 
     // Once all the elements on the page have loaded we will ask the server to provide us with some data to use
-    document.addEventListener("DOMContentLoaded", async function() {
-        try {
-            // Throw up a different message
-            loadingMessage = document.getElementById('loading-message');
-            loadingMessage.innerText = '<%= loadingMessages[Math.floor(Math.random() * loadingMessages.length)] %>';
+    document.addEventListener("DOMContentLoaded", async function () {
+    try {
+        // Throw up a different message
+        loadingMessage = document.getElementById("loading-message");
+        loadingMessage.innerText =
+        "<%= loadingMessages[Math.floor(Math.random() * loadingMessages.length)] %>";
 
-            // Grab the loading overlay and make it visible
-            const overlay = document.getElementById('loading-overlay');
-            overlay.classList.remove('fade-out');
-            overlay.style.display = 'flex';
+        // Grab the loading overlay and make it visible
+        const overlay = document.getElementById("loading-overlay");
+        overlay.classList.remove("fade-out");
+        overlay.style.display = "flex";
 
-            // A route to ensure any preliminary data is loaded before the user can interact with the app
-            const response = await fetch('/fetch-landing-data');
-            if (!response.ok) {
-                // Usually occurs when theres an error in some sort of setup or an unlikely ratelimit from IMDb
-                throw new Error(`Not an OK response from kick-off.... error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                // Add event listeners to show/hide the top nav bar on hover
-                document.getElementById("top-nav-bar").addEventListener("mouseenter", () => {
-                    document.getElementById("top-nav-bar").classList.add("visible");
-                    isMouseOverTopNavBar = true;
-                });
-                document.getElementById("top-nav-bar").addEventListener("mouseleave", () => {
-                    isMouseOverTopNavBar = false;
-                });
-
-                // Fly to location when the globe is finally loaded
-                var randomCoords = [0,0];
-
-                if('<%= ttID %>' != 'home'){
-                    // If we have a ttID in the URL, we will use that to search for a movie
-                    const response = await fetch('/submit-ttID', {
-                        method: 'POST',
-                        body: JSON.stringify({ ttID: '<%= ttID %>' }),
-                        headers: new Headers({ "Content-Type": "application/json" })
-                    });
-
-                    const data = await response.json();
-
-                    if(data.success){
-                        // Clears existing globe info and update the landing page with the new movie data
-                        clearMarkersAndLayers(markers, map);
-                        updateLandingPageWithMovieData(data);
-                        // Updates the 'Save Movie' button to reflect the current state of the movie
-                        getTitleSavedState('<%= ttID %>');
-                        // Get random coords from geoData length to fly to a new location
-                        if(data.geoData.length > 0) {
-                            randomCoords = data.geoData[Math.floor(Math.random() * data.geoData.length)].coords;
-                        }
-                        // Commence fade-out after 200 ms (DOM needs some time to make the changes)
-                        setTimeout(() => {
-                            var saveBtn = document.getElementById("save-movie");
-                            saveBtn.classList.add('visible');
-                            var grossesTable = document.getElementById("grosses-table");
-                            grossesTable.classList.add('visible');
-                        }, 200);
-                    } else {
-                        console.error('Error fetching API data:', data);
-                    }
-                }
-                // If we are entering the homepage without any ttID we can just unfade as per usual
-                // Commence fade-out after 100 ms (DOM can have some extra time to finish updating the changes)
-                setTimeout(() => {
-                    overlay.classList.add('fade-out');
-                    updateMarkerOpacity();
-                    map.flyTo({
-                        center: randomCoords,
-                        zoom: 2,
-                        speed: .2, 
-                        curve: 1
-                    });
-                    overlay.addEventListener('transitionend', () => {
-                        // Only when the animation is finished do we allow the users to interact with the app and any other elements
-                        overlay.style.display = 'none';
-                        updateMarkerOpacity();
-
-                        // Grab the loading overlay and update the message
-                        var loadingMessage = document.getElementById('loading-message');
-                        loadingMessage.innerText = "COOLING THE AFTERBURNERS...";
-
-                        // Fade in the map
-                        const mapContainer = document.getElementById('map');
-                        mapContainer.classList.add('visible');
-                        const leftPanelContainer = document.getElementById('left-panel');
-                        leftPanelContainer.classList.add('visible');
-                        
-                        // Postload, we can register the movie to be ready to be saved (prevents saving before the user loads everything)
-                        document.getElementById("save-movie").addEventListener("click", async () => {
-                            await toggleTitleSavedState('<%= ttID %>');
-                        });
-                    });
-                }, 100);
-            }
-        } catch (error) {
-            console.error('Error fetching API data:', error);
+        // A route to ensure any preliminary data is loaded before the user can interact with the app
+        const response = await fetch("/fetch-landing-data");
+        if (!response.ok) {
+        // Usually occurs when theres an error in some sort of setup or an unlikely ratelimit from IMDb
+        throw new Error(
+            `Not an OK response from kick-off.... error! status: ${response.status}`
+        );
         }
+
+        const data = await response.json();
+
+        if (data.success) {
+        // Add event listeners to show/hide the top nav bar on hover
+        document
+            .getElementById("top-nav-bar")
+            .addEventListener("mouseenter", () => {
+            document.getElementById("top-nav-bar").classList.add("visible");
+            isMouseOverTopNavBar = true;
+            });
+        document
+            .getElementById("top-nav-bar")
+            .addEventListener("mouseleave", () => {
+            isMouseOverTopNavBar = false;
+            });
+
+        // Fly to location when the globe is finally loaded
+        var randomCoords = [0, 0];
+
+        if ("<%= ttID %>" != "home") {
+            // If we have a ttID in the URL, we will use that to search for a movie
+            const response = await fetch("/submit-ttID", {
+            method: "POST",
+            body: JSON.stringify({ ttID: "<%= ttID %>" }),
+            headers: new Headers({ "Content-Type": "application/json" }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+            // Clears existing globe info and update the landing page with the new movie data
+            clearMarkersAndLayers(markers, map);
+            updateLandingPageWithMovieData(data);
+            // Updates the 'Save Movie' button to reflect the current state of the movie
+            getTitleSavedState("<%= ttID %>");
+            // Get random coords from geoData length to fly to a new location
+            if (data.geoData.length > 0) {
+                randomCoords =
+                data.geoData[Math.floor(Math.random() * data.geoData.length)]
+                    .coords;
+            }
+            // Commence fade-out after 200 ms (DOM needs some time to make the changes)
+            setTimeout(() => {
+                var saveBtn = document.getElementById("save-movie");
+                saveBtn.classList.add("visible");
+                var grossesTable = document.getElementById("grosses-table");
+                grossesTable.classList.add("visible");
+            }, 200);
+            } else {
+            console.error("Error fetching API data:", data);
+            }
+        }
+        // If we are entering the homepage without any ttID we can just unfade as per usual
+        // Commence fade-out after 100 ms (DOM can have some extra time to finish updating the changes)
+        setTimeout(() => {
+            overlay.classList.add("fade-out");
+            updateMarkerOpacity();
+            map.flyTo({
+            center: randomCoords,
+            zoom: 2,
+            speed: 0.2,
+            curve: 1,
+            });
+            overlay.addEventListener("transitionend", () => {
+            // Only when the animation is finished do we allow the users to interact with the app and any other elements
+            overlay.style.display = "none";
+            updateMarkerOpacity();
+
+            // Grab the loading overlay and update the message
+            var loadingMessage = document.getElementById("loading-message");
+            loadingMessage.innerText = "COOLING THE AFTERBURNERS...";
+
+            // Fade in the map
+            const mapContainer = document.getElementById("map");
+            mapContainer.classList.add("visible");
+            const leftPanelContainer = document.getElementById("left-panel");
+            leftPanelContainer.classList.add("visible");
+
+            // Postload, we can register the movie to be ready to be saved (prevents saving before the user loads everything)
+            document
+                .getElementById("save-movie")
+                .addEventListener("click", async () => {
+                await toggleTitleSavedState("<%= ttID %>");
+                });
+            });
+        }, 100);
+        }
+    } catch (error) {
+        console.error("Error fetching API data:", error);
+    }
     });
 
     // Listen for changes in camera position
-    map.on('move', () => {
-        updateMarkerOpacity();
-        if(map.getZoom() >= 2.5 && !isMouseOverTopNavBar){
-            document.getElementById('top-nav-bar').classList.remove('visible');
-        }
+    map.on("move", () => {
+    updateMarkerOpacity();
+    if (map.getZoom() >= 2.5 && !isMouseOverTopNavBar) {
+        document.getElementById("top-nav-bar").classList.remove("visible");
+    }
     });
 
     // Listen for changes in zoom level so we can update the nav bar visibility
-    map.on('zoomstart', () => {
-        // If we're zooming that means we lost focus on the nav bar so we can safely assume its not hovered
-        isMouseOverTopNavBar = false;
+    map.on("zoomstart", () => {
+    // If we're zooming that means we lost focus on the nav bar so we can safely assume its not hovered
+    isMouseOverTopNavBar = false;
     });
 
-    map.on('zoomend', () => {
-        // Check zoom and also check if nav bar is currently hovered or not
-        if(map.getZoom() >= 2.5 && !isMouseOverTopNavBar){
-            document.getElementById('top-nav-bar').classList.remove('visible');
-        }
-        else if (!isMouseOverTopNavBar){
-            document.getElementById('top-nav-bar').classList.add('visible');
-        }
+    map.on("zoomend", () => {
+    // Check zoom and also check if nav bar is currently hovered or not
+    if (map.getZoom() >= 2.5 && !isMouseOverTopNavBar) {
+        document.getElementById("top-nav-bar").classList.remove("visible");
+    } else if (!isMouseOverTopNavBar) {
+        document.getElementById("top-nav-bar").classList.add("visible");
+    }
     });
-    
   </script>
 </body>
 </html>

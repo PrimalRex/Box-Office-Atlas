@@ -4,7 +4,7 @@ var mysql = require("mysql");
 var session = require("express-session");
 var ejs = require("ejs");
 var expressSanitizer = require("express-sanitizer");
-var favicon = require('serve-favicon')
+var favicon = require("serve-favicon");
 // Hide away all API keys in here
 require("dotenv").config();
 
@@ -58,7 +58,7 @@ app.use(expressSanitizer());
 app.use(express.urlencoded({ extended: true }));
 
 // Favicon
-app.use(favicon((__dirname + "/public" + "/favicon.ico")));
+app.use(favicon(__dirname + "/public" + "/favicon.ico"));
 
 // Set the directory where Express will pick up HTML files
 // __dirname will get the current directory

@@ -271,7 +271,8 @@ async function toggleTitleSavedState(ttID) {
     }, 200);
   } else {
     console.error("Error updating saved state:", data);
-    document.getElementById("loading-message").innerText = "FAILED TO UPDATE FAVOURITES";
+    document.getElementById("loading-message").innerText =
+      "FAILED TO UPDATE FAVOURITES";
     overlay.classList.add("fade-out");
     overlay.style.display = "none";
   }

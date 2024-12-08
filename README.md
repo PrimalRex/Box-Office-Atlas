@@ -28,6 +28,8 @@ SNAPSHOTS FROM NOVEMBER 20TH, 2024
 | `src`| All the essential EJS, JavaScript, and CSS files for the application|
 
 ----
+# Requirements
+If you are deploying on a Linux/Ubuntu server, you will need a version of Ubuntu > 18. This is because there are some packages that are not supported 18. I suggest using 22.X.
 
 # Installation
 Clone the repository.
@@ -43,6 +45,7 @@ npm install
 Duplicate the ```template.env``` file and remove the 'template' prefix. Fill with valid Keys & Passwords. It is important these are valid as the app will not execute without them.
 
 Execute all the SQL commands in the ```db``` directory to ensure the app can properly communicate to the Database backend.
+The correct order goes: init_DB -> create_db -> stored_procedures -> extra_procedures
 
 Launch a local instance of the app to verify that everything has been setup properly.
 ```
