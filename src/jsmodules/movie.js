@@ -115,9 +115,12 @@ class Movie {
     }
 
     var lowestGross = parseFloat(this.getLowestGrossingCountry().gross);
-    var highestGross = parseFloat(this.getSecondHighestGrossingCountry().gross);
-    // Usually there is a big gap between highest and lowest thus makes it not good to interp between, so we take the average
-    var averageGross = parseFloat((lowestGross + highestGross) / 2);
+    // Naming here is intentional, originally from testing, the highest grossing country would provide an incredibly high value which would
+    // dwarf all other countries, so to ensure that the same feeling was produced without the extreme values, we take the second highest.
+    // The dwarfism still exists on a per title case but it's generally much more consistent with non-booming box office performers
+    var secondHighestGross = parseFloat(this.getSecondHighestGrossingCountry().gross);
+    // Usually there is a big gap between second highest and lowest thus makes it not good to interp between, so we take the average
+    var averageGross = parseFloat((lowestGross + secondHighestGross) / 2);
 
     var grossPercentage = 0;
 
@@ -139,7 +142,7 @@ class Movie {
           ? Math.round(grossPercentage * 1000) / 1000
           : Math.round(grossPercentage * 100) / 100;
 
-      // Convert the value into a normalized alpha of 0.3-1 where 0.3 is lowestGrossing and 1 is highestGrossing number
+      // Convert the value into a normalized alpha of 0.3-1 where 0.3 is lowestGrossing and 1 is secondHighestGrossing number
       value =
         ((value - lowestGross) / (averageGross - lowestGross)) * (1 - 0.3) +
         0.3;
@@ -210,6 +213,7 @@ class Movie {
     return { country: highestGrossCountry, gross: highestGross };
   }
 
+  // Returns the second highest grossing country
   getSecondHighestGrossingCountry() {
     var secondhighestGross = 0;
     var secondhighestGrossCountry;
@@ -237,6 +241,7 @@ class Movie {
   }
 
   // Analyses a portion of the movie poster and returns a dominnant color
+  // In retrospect, converting it to a HEX format is completely not necessary since CSS will read the RGB version just fine
   setAveragePixelColorFromPoster = async () => {
     const getPixelsAsync = (src) => {
       return new Promise((resolve, reject) => {
@@ -291,7 +296,7 @@ class Movie {
         255
       );
 
-      // Convert to hex for mapbox to read
+      // Convert to hex for mapbox to read (not necessary but it's nice to have)
       const hexColor = `#${r.toString(16).padStart(2, "0")}${g
         .toString(16)
         .padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;

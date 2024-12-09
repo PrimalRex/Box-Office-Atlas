@@ -12,13 +12,16 @@ function updateMarkerOpacity() {
     const visibilityThreshold = 5000000 / (map.getZoom() + 0);
     //console.log((visibilityThreshold));
 
+    // Go through each marker and evaluate its distance from the center to determine whether or not it should be culled
     for (let i = 0; i < markers.length; i++) {
       const markerLngLat = markers[i].getLngLat();
       const distance = markerLngLat.distanceTo(center);
 
+      // If the distance is less than the threshold then we should make the marker visible
       if (distance < visibilityThreshold) {
         markers[i].getElement().classList.add("visible");
       } else {
+        // Othewise cull it
         markers[i].getElement().classList.remove("visible");
       }
     }

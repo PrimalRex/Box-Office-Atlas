@@ -45,7 +45,7 @@ db.connect((err) => {
 });
 global.db = db;
 
-// Set up css
+// Set up any public files such as CSS, images, JS helpers etc
 app.use(express.static(__dirname + "/public"));
 
 // Set up body parser
@@ -58,10 +58,10 @@ app.use(expressSanitizer());
 app.use(express.urlencoded({ extended: true }));
 
 // Favicon
+// (Optionally you can enforce a different favicon or the same one in each EJS)
 app.use(favicon(__dirname + "/public" + "/favicon.ico"));
 
 // Set the directory where Express will pick up HTML files
-// __dirname will get the current directory
 app.set("views", __dirname + "/views");
 
 // Tell Express that we want to use EJS as the templating engine
@@ -74,7 +74,7 @@ app.engine("html", ejs.renderFile);
 // Define our data - passing mapbox api key for now
 var boaData = [MAPBOX_API_KEY];
 
-// Requires the main.js file inside the routes folder passing in the Express app and data as arguments.  All the routes will go in this file
+// Requires the main.js file inside the routes folder passing in the Express app and data as arguments. All the routes will go in this file
 require("./routes/main")(app, boaData);
 
 // Start the web app listening
