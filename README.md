@@ -1,4 +1,4 @@
-# Box Office Atlas : : JS/EJS/SQL Project for DAW 2024-2025
+# Box Office Atlas : : JS/EJS/SQL Project
 > Explore global box office film performances
 
 <img src="art/BOABannerTransparent.png" width=100% />
@@ -14,8 +14,6 @@
 ```
 SNAPSHOTS FROM NOVEMBER 20TH, 2024
 ```
-
-**FILL OTHER INFORMATION ABOUT ARCHITECTURE HERE**
 
 ----
 
